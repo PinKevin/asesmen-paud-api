@@ -10,6 +10,13 @@ const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   passwordColumnName: 'password',
 })
 
+export interface UserDto {
+  id?: string
+  fullName?: string
+  email?: string
+  password?: string
+}
+
 export default class User extends compose(BaseModel, AuthFinder) {
   @column({ isPrimary: true })
   declare id: number
