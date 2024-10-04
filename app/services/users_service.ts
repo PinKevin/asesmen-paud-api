@@ -1,4 +1,3 @@
-// import { Hash } from '@adonisjs/core/hash'
 import User, { UserDto } from '#models/user'
 import hash from '@adonisjs/core/services/hash'
 
@@ -26,7 +25,10 @@ export default class UsersService {
   async selectWithId(id: number) {
     const user = await User.findOrFail(id)
 
-    return user
+    return {
+      fullName: user.fullName,
+      email: user.email,
+    }
   }
 
   async update({ id, fullName }: UserDto) {

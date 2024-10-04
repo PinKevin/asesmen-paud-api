@@ -1,24 +1,24 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import UsersService from '#services/users_service'
 import { inject } from '@adonisjs/core'
 import { UserDto } from '#models/user'
 import { createUserValidator } from '#validators/user/create_user'
+import UsersService from '#services/users_service'
+import ResponseService from '#services/response_service'
 
 @inject()
 export default class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private responseService: ResponseService
+  ) {}
 
-  async index({ request }: HttpContext) {
+  async index({ request, response }: HttpContext) {
     const page = request.input('page', 1)
     const limit = 5
 
     const allUsers = await this.usersService.selectAll(page, limit)
-    const result = {
-      status: 'success',
-      payload: allUsers,
-    }
 
-    return result
+    return this.responseService.successResponse(response, 'Data user berhasil diambil', allUsers)
   }
 
   async store({ request, response }: HttpContext) {
@@ -31,31 +31,18 @@ export default class UsersController {
     }
 
     const user = await this.usersService.insert(newUser)
-    const result = {
-      status: 'success',
-      payload: user,
-    }
 
-    return response.status(201).json(result)
+    return this.responseService.successResponse(response, 'User berhasil ditambahkan', user, 201)
   }
 
   async show({ params, response }: HttpContext) {
     try {
       const user = await this.usersService.selectWithId(params.id)
 
-      return {
-        status: 'success',
-        data: {
-          fullName: user.fullName,
-          email: user.email,
-        },
-      }
+      return this.responseService.successResponse(response, 'Data user berhasil diambil', user)
     } catch (error) {
       if (error.code === 'E_ROW_NOT_FOUND') {
-        return response.status(404).json({
-          status: 'error',
-          message: 'User tidak ditemukan',
-        })
+        return this.responseService.failResponse(response, 'User tidak ditemukan', 404)
       }
     }
   }
@@ -69,23 +56,17 @@ export default class UsersController {
         fullName: payload.fullName,
       })
 
-      return response.status(200).json({
-        status: 'success',
-        data: updatedUser,
-      })
+      return this.responseService.successResponse(
+        response,
+        'User berhasil diubah',
+        updatedUser,
+        201
+      )
     } catch (error) {
       if (error.code === 'E_ROW_NOT_FOUND') {
-        return response.status(404).json({
-          status: 'error',
-          message: 'User tidak ditemukan',
-        })
+        return this.responseService.failResponse(response, 'User tidak ditemukan', 404)
       }
-
-      return response.status(400).json({
-        status: 'error',
-        message: 'Gagal mengubah user',
-        error,
-      })
+      return this.responseService.errorResponse(response)
     }
   }
 
@@ -93,22 +74,12 @@ export default class UsersController {
     try {
       await this.usersService.delete({ id: params.id })
 
-      return response.status(200).json({
-        status: 'success',
-        message: 'User berhasil dihapus',
-      })
+      return this.responseService.successResponse(response, 'User berhasil dihapus')
     } catch (error) {
       if (error.code === 'E_ROW_NOT_FOUND') {
-        return response.status(404).json({
-          status: 'error',
-          message: 'User tidak ditemukan',
-        })
+        return this.responseService.failResponse(response, 'User tidak ditemukan', 404)
       }
-
-      return response.status(400).json({
-        status: 'error',
-        message: 'Gagal menghapus user',
-      })
+      return this.responseService.errorResponse(response)
     }
   }
 }
