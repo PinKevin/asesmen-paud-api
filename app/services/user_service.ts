@@ -1,5 +1,4 @@
 import User, { UserDto } from '#models/user'
-import hash from '@adonisjs/core/services/hash'
 
 export default class UsersService {
   async selectAll(page: number, limit: number) {
@@ -8,12 +7,10 @@ export default class UsersService {
   }
 
   async insert({ fullName, email, password }: UserDto) {
-    const hashedPassword = await hash.make(password!)
-
     const user = await User.create({
       fullName,
       email,
-      password: hashedPassword,
+      password,
     })
 
     return {
