@@ -8,7 +8,7 @@
 */
 
 // const UsersController = () => import('#controllers/user_controller')
-const TeachersController = () => import('#controllers/teacher_controller')
+const TeacherController = () => import('#controllers/teacher_controller')
 import router from '@adonisjs/core/services/router'
 
 router.get('/', async () => {
@@ -17,7 +17,8 @@ router.get('/', async () => {
   }
 })
 
-router.post('/sign-up', [TeachersController, 'registerTeacher'])
+router.post('/sign-up', [TeacherController, 'registerTeacher'])
+router.put('/complete-sign-up/:id', [TeacherController, 'completeTeacherAfterRegister'])
 
 // router.get('/users', [UsersController, 'index'])
 // router.post('/users', [UsersController, 'store'])

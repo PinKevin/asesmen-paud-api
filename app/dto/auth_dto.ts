@@ -10,7 +10,8 @@ export interface NewUserId {
   userId: number
 }
 
-export interface CompleteNewUserDataDto {
+export interface CompleteTeacherDataDto {
+  id: number
   name: string
   nuptk: string
   placeOfBirth: string

@@ -19,7 +19,7 @@ export default class Teacher extends BaseModel {
 
   @column.date({
     serialize: (value: DateTime) => {
-      return value ? value.setZone('UTC+7').toISO : value
+      return value ? value.toISO() : value
     },
   })
   declare dateOfBirth: DateTime
