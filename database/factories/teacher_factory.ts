@@ -1,7 +1,7 @@
 import factory from '@adonisjs/lucid/factories'
 import Teacher from '#models/teacher'
 import { DateTime } from 'luxon'
-import { Gender, Religion } from '#enum/user_interface'
+import { Gender, Religion } from '#enum/user_enum'
 
 export const TeacherFactory = factory
   .define(Teacher, async ({ faker }) => {

@@ -11,3 +11,8 @@ export enum Religion {
   buddha = 'Buddha',
   konghucu = 'Konghucu',
 }
+
+export enum AccountStatus {
+  pending = 'Pending',
+  active = 'Active',
+}

@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
-import { Gender, Religion } from '#enum/user_interface'
+import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import { Gender, Religion } from '#enum/user_enum'
+import User from './user.js'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 
 export default class Teacher extends BaseModel {
   @column({ isPrimary: true })
@@ -15,7 +17,11 @@ export default class Teacher extends BaseModel {
   @column()
   declare placeOfBirth: string
 
-  @column.dateTime()
+  @column.date({
+    serialize: (value: DateTime) => {
+      return value ? value.setZone('UTC+7').toISO : value
+    },
+  })
   declare dateOfBirth: DateTime
 
   @column()
@@ -24,9 +30,15 @@ export default class Teacher extends BaseModel {
   @column()
   declare religion: Religion
 
+  @column()
+  declare userId: number
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  @belongsTo(() => User)
+  declare user: BelongsTo<typeof User>
 }
