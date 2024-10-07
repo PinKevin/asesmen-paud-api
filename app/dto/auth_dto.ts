@@ -19,3 +19,8 @@ export interface CompleteTeacherDataDto {
   gender: Gender
   religion: Religion
 }
+
+export interface LoginDto {
+  email: string
+  password: string
+}

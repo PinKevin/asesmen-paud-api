@@ -1,6 +1,7 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
-import { errors } from '@vinejs/vine'
+import { errors as vineErrors } from '@vinejs/vine'
+import { errors as authErrors } from '@adonisjs/auth'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -14,11 +15,19 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
-    if (error instanceof errors.E_VALIDATION_ERROR) {
+    if (error instanceof vineErrors.E_VALIDATION_ERROR) {
       ctx.response.status(422).send({
         status: 'fail',
         message: 'Validasi gagal',
         errors: error.messages,
+      })
+      return
+    }
+
+    if (error instanceof authErrors.E_UNAUTHORIZED_ACCESS) {
+      ctx.response.status(401).send({
+        status: 'fail',
+        message: 'Anda belum login, silakan login terlebih dahulu',
       })
       return
     }
