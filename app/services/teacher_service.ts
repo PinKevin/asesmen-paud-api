@@ -18,7 +18,6 @@ export default class TeacherService {
         },
         { client: trx }
       )
-      user.serialize()
 
       const teacher = await Teacher.create(
         {
@@ -26,7 +25,6 @@ export default class TeacherService {
         },
         { client: trx }
       )
-      teacher.serialize()
 
       await trx.commit()
 
@@ -62,19 +60,25 @@ export default class TeacherService {
         throw Error('Anda sudah melakukan pendaftaran')
       }
 
-      await teacher
-        .merge({
-          name,
-          nuptk,
-          placeOfBirth,
-          dateOfBirth: DateTime.fromJSDate(dateOfBirth),
-          gender,
-          religion,
-        })
-        .save()
+      const user = await User.findOrFail(teacher.userId)
 
-      teacher.serialize()
-      return teacher
+      teacher.merge({
+        name,
+        nuptk,
+        placeOfBirth,
+        dateOfBirth: DateTime.fromJSDate(dateOfBirth),
+        gender,
+        religion,
+      })
+
+      user.merge({
+        accountStatus: AccountStatus.active,
+      })
+
+      await teacher.save()
+      await user.save()
+
+      return teacher.serialize()
     } catch (error) {
       throw error
     }
