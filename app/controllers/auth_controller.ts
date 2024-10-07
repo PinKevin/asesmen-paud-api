@@ -1,5 +1,3 @@
-// import { AccountStatus } from '#enum/user_enum'
-// import User from '#models/user'
 import AuthService from '#services/auth_service'
 import ResponseService from '#services/response_service'
 import { loginValidator } from '#validators/auth/login'
@@ -34,6 +32,16 @@ export default class AuthController {
       }
 
       return this.responseService.errorResponse(response)
+    }
+  }
+
+  async logout({ auth, response }: HttpContext) {
+    try {
+      await this.authService.revokeToken(auth)
+
+      return this.responseService.successResponse(response, 'Anda berhasil keluar')
+    } catch (error) {
+      return this.responseService.failResponse(response, error.message)
     }
   }
 }

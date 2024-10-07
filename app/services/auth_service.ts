@@ -1,6 +1,8 @@
 import { LoginDto } from '#dto/auth_dto'
 import { AccountStatus } from '#enum/user_enum'
 import User from '#models/user'
+import { Authenticator } from '@adonisjs/auth'
+import { Authenticators } from '@adonisjs/auth/types'
 
 export default class AuthService {
   async createToken({ email, password }: LoginDto) {
@@ -17,5 +19,10 @@ export default class AuthService {
     } catch (error) {
       throw error
     }
+  }
+
+  async revokeToken(auth: Authenticator<Authenticators>) {
+    const user = auth.getUserOrFail()
+    await User.accessTokens.delete(user, user.currentAccessToken.identifier)
   }
 }
