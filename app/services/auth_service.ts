@@ -34,4 +34,15 @@ export default class AuthService {
       throw error
     }
   }
+
+  async getUser(auth: Authenticator<Authenticators>) {
+    const user = auth.getUserOrFail()
+    await user.load('teacher')
+
+    return {
+      name: user.teacher.name,
+      nuptk: user.teacher.nuptk,
+      email: user.email,
+    }
+  }
 }

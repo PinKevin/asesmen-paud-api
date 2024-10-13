@@ -53,4 +53,13 @@ export default class AuthController {
       return this.responseService.failResponse(response, 'Token kadaluarsa')
     }
   }
+
+  async getProfile({ auth, response }: HttpContext) {
+    try {
+      const data = await this.authService.getUser(auth)
+      return this.responseService.successResponse(response, 'Profil berhasil diambil', data)
+    } catch (error) {
+      return this.responseService.failResponse(response, error.message)
+    }
+  }
 }

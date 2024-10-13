@@ -26,6 +26,8 @@ router
   .group(() => {
     router.get('/check-token', [AuthController, 'checkAuthenticaton'])
     router.post('/sign-out', [AuthController, 'logout'])
+    router.get('/profile', [AuthController, 'getProfile'])
+
     router.get('/test-guard', async () => {
       return {
         test: 'In tes penggunaan token',
