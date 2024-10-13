@@ -44,4 +44,13 @@ export default class AuthController {
       return this.responseService.failResponse(response, error.message)
     }
   }
+
+  async checkAuthenticaton({ auth, response }: HttpContext) {
+    try {
+      await this.authService.checkToken(auth)
+      return this.responseService.successResponse(response, 'Token login user valid')
+    } catch (error) {
+      return this.responseService.failResponse(response, 'Token kadaluarsa')
+    }
+  }
 }

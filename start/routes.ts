@@ -24,6 +24,7 @@ router.post('/sign-in', [AuthController, 'login'])
 
 router
   .group(() => {
+    router.get('/check-token', [AuthController, 'checkAuthenticaton'])
     router.post('/sign-out', [AuthController, 'logout'])
     router.get('/test-guard', async () => {
       return {

@@ -25,4 +25,13 @@ export default class AuthService {
     const user = auth.getUserOrFail()
     await User.accessTokens.delete(user, user.currentAccessToken.identifier)
   }
+
+  async checkToken(auth: Authenticator<Authenticators>) {
+    try {
+      const isLoggedIn = await auth.use('api').check()
+      return isLoggedIn
+    } catch (error) {
+      throw error
+    }
+  }
 }
