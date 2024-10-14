@@ -56,7 +56,7 @@ export default class AuthController {
 
   async getProfile({ auth, response }: HttpContext) {
     try {
-      const data = await this.authService.getUser(auth)
+      const data = await this.authService.getUserProfile(auth)
       return this.responseService.successResponse(response, 'Profil berhasil diambil', data)
     } catch (error) {
       return this.responseService.failResponse(response, error.message)

@@ -35,7 +35,7 @@ export default class AuthService {
     }
   }
 
-  async getUser(auth: Authenticator<Authenticators>) {
+  async getUserProfile(auth: Authenticator<Authenticators>) {
     const user = auth.getUserOrFail()
     await user.load('teacher')
 
@@ -44,5 +44,10 @@ export default class AuthService {
       nuptk: user.teacher.nuptk,
       email: user.email,
     }
+  }
+
+  async getUserFromAuth(auth: Authenticator<Authenticators>) {
+    const user = auth.getUserOrFail()
+    return user
   }
 }

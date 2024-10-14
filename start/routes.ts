@@ -9,6 +9,7 @@
 
 const TeacherController = () => import('#controllers/teacher_controller')
 const AuthController = () => import('#controllers/auth_controller')
+const StudentController = () => import('#controllers/student_controller')
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 
@@ -27,6 +28,8 @@ router
     router.get('/check-token', [AuthController, 'checkAuthenticaton'])
     router.post('/sign-out', [AuthController, 'logout'])
     router.get('/profile', [AuthController, 'getProfile'])
+
+    router.get('/students', [StudentController, 'index'])
 
     router.get('/test-guard', async () => {
       return {
