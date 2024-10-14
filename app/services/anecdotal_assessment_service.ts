@@ -47,4 +47,16 @@ export default class AnecdotalAssessmentService {
       throw error
     }
   }
+
+  async getDetailAssessments(id: number, assessmentId: number) {
+    const student = await Student.findOrFail(id)
+
+    const anecdotal = await AnecdotalAssessment.query()
+      .where('student_id', student.id)
+      .where('id', assessmentId)
+      .preload('learningGoals')
+      .firstOrFail()
+
+    return anecdotal
+  }
 }
