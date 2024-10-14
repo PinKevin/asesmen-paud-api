@@ -16,13 +16,17 @@ export default class extends BaseSeeder {
           })
           .create()
 
-        /* for many class, use this */
-        const numberOfClasses = Math.floor(Math.random() * 3) + 1
-        const classes = await ClassFactory.client(trx).createMany(numberOfClasses)
-        await teacher.related('classes').attach(
-          classes.map((cls) => cls.id),
-          trx
-        )
+        /* for many classes, use this */
+        // const numberOfClasses = Math.floor(Math.random() * 3) + 1
+        // const classes = await ClassFactory.client(trx).createMany(numberOfClasses)
+        // await teacher.related('classes').attach(
+        //   classes.map((cls) => cls.id),
+        //   trx
+        // )
+
+        /* for one class, use this */
+        const teacherClass = await ClassFactory.client(trx).create()
+        await teacher.related('classes').attach([teacherClass.id], trx)
       }
     })
   }
