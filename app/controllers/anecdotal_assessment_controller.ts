@@ -3,7 +3,7 @@ import AnecdotalAssessmentService from '#services/anecdotal_assessment_service'
 import ResponseService from '#services/response_service'
 import { inject } from '@adonisjs/core'
 import { errors } from '@adonisjs/lucid'
-// import { CreateAnecdotalDto } from '#dto/anecdotal_dto'
+import { createAnecdotalValidatoion } from '#validators/anecdotal/create_anecdotal'
 
 @inject()
 export default class AnecdotalAssessmentsController {
@@ -35,7 +35,7 @@ export default class AnecdotalAssessmentsController {
 
   async store({ request, response }: HttpContext) {
     const studentId = request.param('id')
-    const payload = request.all()
+    const payload = await request.validateUsing(createAnecdotalValidatoion)
 
     const data = {
       studentId,
@@ -45,13 +45,17 @@ export default class AnecdotalAssessmentsController {
       learningGoals: payload.learningGoals,
     }
 
-    const assessment = await this.anecdotalService.addAssessments(data)
+    try {
+      const assessment = await this.anecdotalService.addAssessments(data)
 
-    return this.responseService.successResponse(
-      response,
-      'Asesmen berhasil ditambah',
-      assessment,
-      201
-    )
+      return this.responseService.successResponse(
+        response,
+        'Asesmen berhasil ditambah',
+        assessment,
+        201
+      )
+    } catch (error) {
+      return this.responseService.failResponse(response, error.message)
+    }
   }
 }

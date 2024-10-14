@@ -37,8 +37,6 @@ export default class AnecdotalAssessmentService {
 
       if (learningGoals && learningGoals.length) {
         await assessments.related('learningGoals').attach(learningGoals, trx)
-      } else {
-        throw Error('Tidak ada tujuan pembelejaran')
       }
 
       await trx.commit()
