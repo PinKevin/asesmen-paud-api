@@ -6,7 +6,6 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id')
-      table.date('assessment_date')
       table.string('photo_link')
       table.text('description')
       table.text('feedback')

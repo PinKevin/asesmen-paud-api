@@ -8,13 +8,6 @@ export default class AnecdotalAssessment extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
-  @column.date({
-    serialize: (value: DateTime) => {
-      return value ? value.toISO() : value
-    },
-  })
-  declare assessmentDate: DateTime
-
   @column()
   declare photoLink: string
 
