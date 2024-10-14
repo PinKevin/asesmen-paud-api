@@ -7,11 +7,12 @@
 |
 */
 
+import router from '@adonisjs/core/services/router'
+import { middleware } from './kernel.js'
 const TeacherController = () => import('#controllers/teacher_controller')
 const AuthController = () => import('#controllers/auth_controller')
 const StudentController = () => import('#controllers/student_controller')
-import router from '@adonisjs/core/services/router'
-import { middleware } from './kernel.js'
+const AnecdotalAssessmentsController = () => import('#controllers/anecdotal_assessment_controller')
 
 router.get('/', async () => {
   return {
@@ -30,6 +31,8 @@ router
     router.get('/profile', [AuthController, 'getProfile'])
 
     router.get('/students', [StudentController, 'index'])
+
+    router.get('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'index'])
 
     router.get('/test-guard', async () => {
       return {
