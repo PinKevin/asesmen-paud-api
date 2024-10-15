@@ -1,7 +1,7 @@
 # Dependencies and AdonisJS build
 node_modules
 build
-tmp
+tmp/*
 
 # Secrets
 .env
@@ -23,3 +23,9 @@ yarn-error.log
 
 # Platform specific
 .DS_Store
+
+# To preserve folder but not the content
+!/tmp/note.txt
+
+/storage/*
+!/storage/note.txt

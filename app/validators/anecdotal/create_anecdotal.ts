@@ -2,7 +2,10 @@ import vine, { SimpleMessagesProvider } from '@vinejs/vine'
 
 export const createAnecdotalValidatoion = vine.compile(
   vine.object({
-    photoLink: vine.string().trim(),
+    photo: vine.file({
+      size: '5mb',
+      extnames: ['jpg', 'png'],
+    }),
     description: vine.string().trim(),
     feedback: vine.string().trim(),
     learningGoals: vine.array(vine.number()).notEmpty(),
@@ -10,14 +13,16 @@ export const createAnecdotalValidatoion = vine.compile(
 )
 
 const messages = {
-  required: '{{ field }} harus diisi',
-  array: '{{ field }} harus berupa array',
-  number: '{{ field }} harus terdiri atas angka',
-  notEmpty: '{{ field }} tidak boleh kosong',
+  'required': '{{ field }} harus diisi',
+  'array': '{{ field }} harus berupa array',
+  'number': '{{ field }} harus terdiri atas angka',
+  'notEmpty': '{{ field }} tidak boleh kosong',
+  'file.size': 'Ukuran file harus di bawah 5 MB',
+  'file.extname': 'File harus berformat .jpg, .jpeg, atau .png',
 }
 
 const fields = {
-  photoLink: 'Foto',
+  photo: 'Foto',
   description: 'Deskripsi',
   feedback: 'Umpan balik',
   learningGoals: 'Tujuan pembelajaran',

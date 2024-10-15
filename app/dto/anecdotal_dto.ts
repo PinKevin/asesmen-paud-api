@@ -1,5 +1,7 @@
+import { MultipartFile } from '@adonisjs/core/types/bodyparser'
+
 export interface CreateAnecdotalDto {
-  photoLink: string
+  photo: MultipartFile
   description: string
   feedback: string
   studentId: number

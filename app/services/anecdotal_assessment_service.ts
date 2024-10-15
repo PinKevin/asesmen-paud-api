@@ -1,6 +1,8 @@
 import { CreateAnecdotalDto } from '#dto/anecdotal_dto'
 import AnecdotalAssessment from '#models/anecdotal_assessment'
 import Student from '#models/student'
+import { cuid } from '@adonisjs/core/helpers'
+import app from '@adonisjs/core/services/app'
 import db from '@adonisjs/lucid/services/db'
 
 export default class AnecdotalAssessmentService {
@@ -16,7 +18,7 @@ export default class AnecdotalAssessmentService {
   }
 
   async addAssessments({
-    photoLink,
+    photo,
     description,
     feedback,
     studentId,
@@ -25,9 +27,15 @@ export default class AnecdotalAssessmentService {
     const trx = await db.transaction()
 
     try {
+      const fileName = `${cuid()}.${photo.extname}`
+
+      await photo.move(app.makePath('storage/uploads'), {
+        name: fileName,
+      })
+
       const assessments = await AnecdotalAssessment.create(
         {
-          photoLink,
+          photoLink: fileName,
           description,
           feedback,
           studentId,

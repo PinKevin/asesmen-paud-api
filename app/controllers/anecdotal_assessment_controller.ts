@@ -39,7 +39,7 @@ export default class AnecdotalAssessmentsController {
 
     const data = {
       studentId,
-      photoLink: payload.photoLink,
+      photo: payload.photo,
       description: payload.description,
       feedback: payload.feedback,
       learningGoals: payload.learningGoals,
