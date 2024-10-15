@@ -1,4 +1,4 @@
-import { CreateAnecdotalDto } from '#dto/anecdotal_dto'
+import { CreateAnecdotalDto, EditAnecdotalDto } from '#dto/anecdotal_dto'
 import AnecdotalAssessment from '#models/anecdotal_assessment'
 import Student from '#models/student'
 import { cuid } from '@adonisjs/core/helpers'
@@ -66,5 +66,55 @@ export default class AnecdotalAssessmentService {
       .firstOrFail()
 
     return anecdotal
+  }
+
+  async updateAssessments(
+    id: number,
+    assessmentId: number,
+    { photo, description, feedback, learningGoals }: EditAnecdotalDto
+  ) {
+    const student = await Student.findOrFail(id)
+
+    const anecdotal = await AnecdotalAssessment.query()
+      .where('student_id', student.id)
+      .where('id', assessmentId)
+      .preload('learningGoals')
+      .firstOrFail()
+
+    const trx = await db.transaction()
+
+    try {
+      let fileName = anecdotal.photoLink
+      if (photo) {
+        fileName = `${cuid()}.${photo.extname}`
+
+        await photo.move(app.makePath('storage/uploads'), {
+          name: fileName,
+        })
+      }
+
+      anecdotal
+        .merge({
+          photoLink: fileName,
+          description: description ?? anecdotal.description,
+          feedback: feedback ?? anecdotal.feedback,
+          studentId: id,
+        })
+        .useTransaction(trx)
+        .save()
+
+      if (learningGoals && learningGoals.length) {
+        await anecdotal.related('learningGoals').detach([], trx)
+        await anecdotal.related('learningGoals').attach(learningGoals, trx)
+      }
+
+      await trx.commit()
+
+      await anecdotal.load('learningGoals')
+      return anecdotal
+    } catch (error) {
+      await trx.rollback()
+      throw error
+    }
   }
 }

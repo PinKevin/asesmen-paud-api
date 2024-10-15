@@ -7,3 +7,11 @@ export interface CreateAnecdotalDto {
   studentId: number
   learningGoals: number[]
 }
+
+export interface EditAnecdotalDto {
+  photo?: MultipartFile
+  description?: string
+  feedback?: string
+  studentId?: number
+  learningGoals?: number[]
+}

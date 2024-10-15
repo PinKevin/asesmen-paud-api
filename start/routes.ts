@@ -35,6 +35,7 @@ router
     router.get('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'index'])
     router.post('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'store'])
     router.get('/students/:id/anecdotals/:anecdotalId', [AnecdotalAssessmentsController, 'show'])
+    router.put('/students/:id/anecdotals/:anecdotalId', [AnecdotalAssessmentsController, 'update'])
 
     router.get('/test-guard', async () => {
       return {
