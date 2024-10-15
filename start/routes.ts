@@ -9,6 +9,7 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const LearningGoalsController = () => import('#controllers/learning_goals_controller')
 const TeacherController = () => import('#controllers/teacher_controller')
 const AuthController = () => import('#controllers/auth_controller')
 const StudentController = () => import('#controllers/student_controller')
@@ -31,6 +32,20 @@ router
     router.get('/profile', [AuthController, 'getProfile'])
 
     router.get('/students', [StudentController, 'index'])
+
+    router.get('/competencies', [LearningGoalsController, 'getAllCompetencies'])
+    router.get('/learning-scopes/:competencyId', [
+      LearningGoalsController,
+      'getLearningScopesByCompetencyId',
+    ])
+    router.get('/sub-learning-scopes/:learningScopeId', [
+      LearningGoalsController,
+      'getSubLearningScopesByLearningScopeId',
+    ])
+    router.get('/learning-goals/:subLearningScopeId', [
+      LearningGoalsController,
+      'getLearningGoalsBySubLearningScopeId',
+    ])
 
     router.get('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'index'])
     router.post('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'store'])
