@@ -96,4 +96,20 @@ export default class AnecdotalAssessmentsController {
       return this.responseService.errorResponse(response, error.message)
     }
   }
+
+  async destroy({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+    const anecdotalId = request.param('anecdotalId')
+
+    try {
+      await this.anecdotalService.deleteAssessments(studentId, anecdotalId)
+      return this.responseService.successResponse(response, 'Data berhasil dihapus')
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, error.message, 404)
+      }
+
+      return this.responseService.errorResponse(response, error.message)
+    }
+  }
 }

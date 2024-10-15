@@ -36,6 +36,10 @@ router
     router.post('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'store'])
     router.get('/students/:id/anecdotals/:anecdotalId', [AnecdotalAssessmentsController, 'show'])
     router.put('/students/:id/anecdotals/:anecdotalId', [AnecdotalAssessmentsController, 'update'])
+    router.delete('/students/:id/anecdotals/:anecdotalId', [
+      AnecdotalAssessmentsController,
+      'destroy',
+    ])
 
     router.get('/test-guard', async () => {
       return {

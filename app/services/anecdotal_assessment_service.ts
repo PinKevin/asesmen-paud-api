@@ -117,4 +117,17 @@ export default class AnecdotalAssessmentService {
       throw error
     }
   }
+
+  async deleteAssessments(id: number, assessmentId: number) {
+    const student = await Student.findOrFail(id)
+
+    const anecdotal = await AnecdotalAssessment.query()
+      .where('student_id', student.id)
+      .where('id', assessmentId)
+      .preload('learningGoals')
+      .firstOrFail()
+
+    await anecdotal.related('learningGoals').detach([])
+    await anecdotal.delete()
+  }
 }
