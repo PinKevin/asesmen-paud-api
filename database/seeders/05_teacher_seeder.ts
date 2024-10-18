@@ -42,7 +42,7 @@ export default class extends BaseSeeder {
         { client: trx }
       )
 
-      await Teacher.create(
+      const myTeacher = await Teacher.create(
         {
           name: 'Orang',
           nuptk: '1122334455667788',
@@ -54,6 +54,9 @@ export default class extends BaseSeeder {
         },
         { client: trx }
       )
+
+      const myTeacherClass = await ClassFactory.client(trx).create()
+      await myTeacher.related('classes').attach([myTeacherClass.id], trx)
     })
   }
 }
