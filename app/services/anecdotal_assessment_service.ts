@@ -27,7 +27,7 @@ export default class AnecdotalAssessmentService {
     const trx = await db.transaction()
 
     try {
-      const fileName = `/uploads/${cuid()}.${photo.extname}`
+      const fileName = `${cuid()}.${photo.extname}`
       await photo.moveToDisk(fileName)
 
       const assessments = await AnecdotalAssessment.create(
@@ -86,7 +86,7 @@ export default class AnecdotalAssessmentService {
       if (photo) {
         await disk.delete(fileName)
 
-        fileName = `/uploads/${cuid()}.${photo.extname}`
+        fileName = `${cuid()}.${photo.extname}`
         await photo.moveToDisk(fileName)
       }
 
