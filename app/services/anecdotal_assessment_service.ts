@@ -2,7 +2,7 @@ import { CreateAnecdotalDto, EditAnecdotalDto } from '#dto/anecdotal_dto'
 import AnecdotalAssessment from '#models/anecdotal_assessment'
 import Student from '#models/student'
 import { cuid } from '@adonisjs/core/helpers'
-import app from '@adonisjs/core/services/app'
+import drive from '@adonisjs/drive/services/main'
 import db from '@adonisjs/lucid/services/db'
 
 export default class AnecdotalAssessmentService {
@@ -27,11 +27,8 @@ export default class AnecdotalAssessmentService {
     const trx = await db.transaction()
 
     try {
-      const fileName = `${cuid()}.${photo.extname}`
-
-      await photo.move(app.makePath('storage/uploads'), {
-        name: fileName,
-      })
+      const fileName = `/uploads/${cuid()}.${photo.extname}`
+      await photo.moveToDisk(fileName)
 
       const assessments = await AnecdotalAssessment.create(
         {
@@ -82,15 +79,15 @@ export default class AnecdotalAssessmentService {
       .firstOrFail()
 
     const trx = await db.transaction()
+    const disk = drive.use()
 
     try {
       let fileName = anecdotal.photoLink
       if (photo) {
-        fileName = `${cuid()}.${photo.extname}`
+        await disk.delete(fileName)
 
-        await photo.move(app.makePath('storage/uploads'), {
-          name: fileName,
-        })
+        fileName = `/uploads/${cuid()}.${photo.extname}`
+        await photo.moveToDisk(fileName)
       }
 
       anecdotal
@@ -126,6 +123,9 @@ export default class AnecdotalAssessmentService {
       .where('id', assessmentId)
       .preload('learningGoals')
       .firstOrFail()
+
+    const disk = drive.use()
+    await disk.delete(anecdotal.photoLink)
 
     await anecdotal.related('learningGoals').detach([])
     await anecdotal.delete()

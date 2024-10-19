@@ -22,7 +22,7 @@ export default class AnecdotalAssessmentsController {
       const data = await this.anecdotalService.getAllAssessments(id, page, limit)
       return this.responseService.successResponse(
         response,
-        'Penilaian asesmen berhasil diambil',
+        'Penilaian anekdot berhasil diambil',
         data
       )
     } catch (error) {
@@ -51,7 +51,7 @@ export default class AnecdotalAssessmentsController {
 
       return this.responseService.successResponse(
         response,
-        'Asesmen berhasil ditambah',
+        'Anekdot berhasil ditambah',
         assessment,
         201
       )
@@ -66,7 +66,7 @@ export default class AnecdotalAssessmentsController {
 
     try {
       const anecdotal = await this.anecdotalService.getDetailAssessments(studentId, anecdotalId)
-      return this.responseService.successResponse(response, 'Data berhasil diambil', anecdotal)
+      return this.responseService.successResponse(response, 'Anekdot berhasil diambil', anecdotal)
     } catch (error) {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, error.message, 404)
@@ -87,7 +87,7 @@ export default class AnecdotalAssessmentsController {
         anecdotalId,
         payload
       )
-      return this.responseService.successResponse(response, 'Data berhasil diubah', anecdotal)
+      return this.responseService.successResponse(response, 'Anekdot berhasil diubah', anecdotal)
     } catch (error) {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, error.message, 404)
@@ -103,7 +103,7 @@ export default class AnecdotalAssessmentsController {
 
     try {
       await this.anecdotalService.deleteAssessments(studentId, anecdotalId)
-      return this.responseService.successResponse(response, 'Data berhasil dihapus')
+      return this.responseService.successResponse(response, 'Anekdot berhasil dihapus')
     } catch (error) {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, error.message, 404)
