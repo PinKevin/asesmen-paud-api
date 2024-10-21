@@ -23,6 +23,7 @@ export default class AnecdotalAssessmentsController {
       DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd')
     )
     const endDate = request.input('until', DateTime.now().toFormat('yyyy-LL-dd'))
+    const sortOrder = request.input('sort-by', 'asc')
 
     try {
       const data = await this.anecdotalService.getAllAssessments(
@@ -30,7 +31,8 @@ export default class AnecdotalAssessmentsController {
         page,
         limit,
         startDate,
-        endDate
+        endDate,
+        sortOrder
       )
       return this.responseService.successResponse(
         response,

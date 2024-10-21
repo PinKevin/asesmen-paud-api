@@ -11,7 +11,8 @@ export default class AnecdotalAssessmentService {
     page: number,
     limit: number,
     startDate: string,
-    endDate: string
+    endDate: string,
+    sortOrder: 'asc' | 'desc' = 'asc'
   ) {
     const student = await Student.findOrFail(id)
 
@@ -19,6 +20,7 @@ export default class AnecdotalAssessmentService {
       .where('student_id', student.id)
       .whereBetween('created_at', [startDate, endDate])
       .preload('learningGoals')
+      .orderBy('created_at', sortOrder)
       .paginate(page, limit)
 
     return anecdotals
