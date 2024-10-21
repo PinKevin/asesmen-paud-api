@@ -6,11 +6,18 @@ import drive from '@adonisjs/drive/services/main'
 import db from '@adonisjs/lucid/services/db'
 
 export default class AnecdotalAssessmentService {
-  async getAllAssessments(id: number, page: number, limit: number) {
+  async getAllAssessments(
+    id: number,
+    page: number,
+    limit: number,
+    startDate: string,
+    endDate: string
+  ) {
     const student = await Student.findOrFail(id)
 
     const anecdotals = await AnecdotalAssessment.query()
       .where('student_id', student.id)
+      .whereBetween('created_at', [startDate, endDate])
       .preload('learningGoals')
       .paginate(page, limit)
 
