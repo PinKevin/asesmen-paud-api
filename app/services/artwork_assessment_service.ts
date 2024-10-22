@@ -27,7 +27,6 @@ export default class ArtworkAssessmentService {
       .orderBy('created_at', sortOrder)
       .paginate(page, limit)
 
-    console.log(id, page, limit, startDate, endDate, sortOrder)
     return artworks
   }
 

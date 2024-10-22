@@ -32,7 +32,7 @@ export default class ArtworkAssessmentsController {
       )
       return this.responseService.successResponse(
         response,
-        'Penilaian anekdot berhasil diambil',
+        'Penilaian hasil karya berhasil diambil',
         data
       )
     } catch (error) {
