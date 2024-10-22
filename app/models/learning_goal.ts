@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import SubLearningScope from './sub_learning_scope.js'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import ChecklistPoint from './checklist_point.js'
 
 export default class LearningGoal extends BaseModel {
   @column({ isPrimary: true })
@@ -24,4 +25,7 @@ export default class LearningGoal extends BaseModel {
 
   @belongsTo(() => SubLearningScope)
   declare subLearningScope: BelongsTo<typeof SubLearningScope>
+
+  @hasMany(() => ChecklistPoint)
+  declare checklistPoints: HasMany<typeof ChecklistPoint>
 }
