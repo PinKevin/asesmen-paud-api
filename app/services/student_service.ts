@@ -4,6 +4,7 @@ import db from '@adonisjs/lucid/services/db'
 export default class StudentService {
   async getTeacherStudents(
     user: User,
+    searchQuery?: string,
     classId?: number,
     page: number = 1,
     perPage: number = 10,
@@ -25,12 +26,19 @@ export default class StudentService {
 
     const studentQuery = db
       .from('students')
+      .distinct('students.id')
       .select('students.*')
       .innerJoin('class_student', 'students.id', 'class_student.student_id')
       .whereIn('class_student.class_id', classIds)
       .with('classes', (query) => {
         query.orderBy('class_student.created_at', 'desc')
       })
+
+    if (searchQuery) {
+      studentQuery
+        .whereLike('students.name', `%${searchQuery}%`)
+        .orWhereLike('students.nisn', `%${searchQuery}%`)
+    }
 
     studentQuery.orderBy('students.name', sortOrder)
 
