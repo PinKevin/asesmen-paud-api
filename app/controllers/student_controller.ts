@@ -15,13 +15,13 @@ export default class StudentController {
   async index({ auth, request, response }: HttpContext) {
     const page = request.input('page')
     const limit = request.input('limit')
-    const className = request.input('class')
+    const classId = request.input('class')
     const sortOrder = request.input('sort-order')
 
     const user = await this.authService.getUserFromAuth(auth)
     const students = await this.studentService.getTeacherStudents(
       user,
-      className,
+      classId,
       page,
       limit,
       sortOrder

@@ -1,3 +1,4 @@
+import AuthService from '#services/auth_service'
 import ResponseService from '#services/response_service'
 import TeacherService from '#services/teacher_service'
 import { updateTeacherValidation } from '#validators/teacher/update_teacher'
@@ -10,7 +11,8 @@ import { errors } from '@adonisjs/lucid'
 export default class TeacherController {
   constructor(
     private responseService: ResponseService,
-    private teacherService: TeacherService
+    private teacherService: TeacherService,
+    private authService: AuthService
   ) {}
 
   async registerTeacher({ request, response }: HttpContext) {
@@ -54,5 +56,11 @@ export default class TeacherController {
 
       return this.responseService.failResponse(response, error.message)
     }
+  }
+
+  async getTeacherClasses({ auth, response }: HttpContext) {
+    const user = await this.authService.getUserFromAuth(auth)
+    const classes = await this.teacherService.getTeacherClass(user)
+    return this.responseService.successResponse(response, 'Kelas guru berhasil diambil', classes)
   }
 }

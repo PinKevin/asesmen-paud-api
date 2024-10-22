@@ -32,6 +32,7 @@ router
     router.get('/profile', [AuthController, 'getProfile'])
 
     router.get('/students', [StudentController, 'index'])
+    router.get('/classes', [TeacherController, 'getTeacherClasses'])
 
     router.get('/competencies', [LearningGoalsController, 'getAllCompetencies'])
     router.get('/learning-scopes/:competencyId', [

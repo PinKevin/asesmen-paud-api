@@ -4,7 +4,7 @@ import db from '@adonisjs/lucid/services/db'
 export default class StudentService {
   async getTeacherStudents(
     user: User,
-    className?: string,
+    classId?: number,
     page: number = 1,
     perPage: number = 10,
     sortOrder: 'asc' | 'desc' = 'asc'
@@ -16,8 +16,8 @@ export default class StudentService {
     }
 
     const classesQuery = user.teacher.related('classes').query()
-    if (className) {
-      classesQuery.where('name', className)
+    if (classId) {
+      classesQuery.where('classes.id', classId)
     }
 
     const classes = await classesQuery

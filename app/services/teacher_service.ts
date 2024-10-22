@@ -83,4 +83,17 @@ export default class TeacherService {
       throw error
     }
   }
+
+  async getTeacherClass(user: User) {
+    await user.load('teacher')
+
+    if (!user.teacher) {
+      throw new Error('Guru tidak ditemukan')
+    }
+
+    const classesQuery = user.teacher.related('classes').query()
+
+    const classes = await classesQuery
+    return classes
+  }
 }
