@@ -9,6 +9,7 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const ArtworkAssessmentsController = () => import('#controllers/artwork_assessment_controller')
 const LearningGoalsController = () => import('#controllers/learning_goals_controller')
 const TeacherController = () => import('#controllers/teacher_controller')
 const AuthController = () => import('#controllers/auth_controller')
@@ -56,6 +57,12 @@ router
       AnecdotalAssessmentsController,
       'destroy',
     ])
+
+    router.get('/students/:id/artworks', [ArtworkAssessmentsController, 'index'])
+    router.post('/students/:id/artworks', [ArtworkAssessmentsController, 'store'])
+    router.get('/students/:id/artworks/:artworkId', [ArtworkAssessmentsController, 'show'])
+    router.put('/students/:id/artworks/:artworkId', [ArtworkAssessmentsController, 'update'])
+    router.delete('/students/:id/artworks/:artworkId', [ArtworkAssessmentsController, 'destroy'])
 
     router.get('/test-guard', async () => {
       return {
