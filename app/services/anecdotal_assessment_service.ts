@@ -4,15 +4,16 @@ import Student from '#models/student'
 import { cuid } from '@adonisjs/core/helpers'
 import drive from '@adonisjs/drive/services/main'
 import db from '@adonisjs/lucid/services/db'
+import { DateTime } from 'luxon'
 
 export default class AnecdotalAssessmentService {
   async getAllAssessments(
     id: number,
-    page: number,
-    limit: number,
-    startDate: string,
-    endDate: string,
-    sortOrder: 'asc' | 'desc' = 'asc'
+    page: number = 1,
+    limit: number = 10,
+    startDate: string = DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
+    endDate: string = DateTime.now().toFormat('yyyy-LL-dd'),
+    sortOrder: 'asc' | 'desc' = 'desc'
   ) {
     const student = await Student.findOrFail(id)
 

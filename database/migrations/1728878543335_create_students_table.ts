@@ -14,7 +14,6 @@ export default class extends BaseSchema {
       table.enum('gender', Object.values(Gender))
       table.enum('religion', Object.values(Religion))
       table.date('acceptance_date')
-      table.bigInteger('class_id').unsigned().references('classes.id')
       table.timestamp('created_at')
       table.timestamp('updated_at')
     })

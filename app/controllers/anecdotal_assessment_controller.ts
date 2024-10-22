@@ -5,7 +5,6 @@ import { inject } from '@adonisjs/core'
 import { errors } from '@adonisjs/lucid'
 import { createAnecdotalValidatoion } from '#validators/anecdotal/create_anecdotal'
 import { updateAnecdotalValidation } from '#validators/anecdotal/update_anecdotal'
-import { DateTime } from 'luxon'
 
 @inject()
 export default class AnecdotalAssessmentsController {
@@ -16,14 +15,11 @@ export default class AnecdotalAssessmentsController {
 
   async index({ request, params, response }: HttpContext) {
     const { id } = params
-    const page = request.input('page', 1)
-    const limit = request.input('limit', 10)
-    const startDate = request.input(
-      'from',
-      DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd')
-    )
-    const endDate = request.input('until', DateTime.now().toFormat('yyyy-LL-dd'))
-    const sortOrder = request.input('sort-by', 'asc')
+    const page = request.input('page')
+    const limit = request.input('limit')
+    const startDate = request.input('from')
+    const endDate = request.input('until')
+    const sortOrder = request.input('sort-order')
 
     try {
       const data = await this.anecdotalService.getAllAssessments(

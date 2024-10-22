@@ -12,9 +12,20 @@ export default class StudentController {
     private responseService: ResponseService
   ) {}
 
-  async index({ auth, response }: HttpContext) {
+  async index({ auth, request, response }: HttpContext) {
+    const page = request.input('page')
+    const limit = request.input('limit')
+    const className = request.input('class')
+    const sortOrder = request.input('sort-order')
+
     const user = await this.authService.getUserFromAuth(auth)
-    const students = await this.studentService.getTeacherStudents(user)
+    const students = await this.studentService.getTeacherStudents(
+      user,
+      className,
+      page,
+      limit,
+      sortOrder
+    )
     return this.responseService.successResponse(response, 'Data murid berhasil diambil', students)
   }
 }

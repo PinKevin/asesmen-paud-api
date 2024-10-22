@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, column, hasMany, manyToMany } from '@adonisjs/lucid/orm'
 import { Gender, Religion } from '#enum/user_enum'
-import Class from './class.js'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import AnecdotalAssessment from './anecdotal_assessment.js'
+import Class from './class.js'
 
 export default class Student extends BaseModel {
   @column({ isPrimary: true })
@@ -38,17 +38,14 @@ export default class Student extends BaseModel {
   })
   declare acceptanceDate: DateTime
 
-  @column()
-  declare classId: number
-
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  @belongsTo(() => Class)
-  declare studentClass: BelongsTo<typeof Class>
+  @manyToMany(() => Class)
+  declare classes: ManyToMany<typeof Class>
 
   @hasMany(() => AnecdotalAssessment)
   declare anecdotalAssessments: HasMany<typeof AnecdotalAssessment>
