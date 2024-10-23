@@ -76,7 +76,7 @@ export default class ArtworkAssessmentsController {
 
     try {
       const artwork = await this.artworkService.getDetailAssessments(studentId, artworkId)
-      return this.responseService.successResponse(response, 'Anekdot berhasil diambil', artwork)
+      return this.responseService.successResponse(response, 'Hasil karya berhasil diambil', artwork)
     } catch (error) {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, error.message, 404)
@@ -93,7 +93,7 @@ export default class ArtworkAssessmentsController {
 
     try {
       const artwork = await this.artworkService.updateAssessments(studentId, artworkId, payload)
-      return this.responseService.successResponse(response, 'Anekdot berhasil diubah', artwork)
+      return this.responseService.successResponse(response, 'Hasil karya berhasil diubah', artwork)
     } catch (error) {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, error.message, 404)
@@ -109,7 +109,7 @@ export default class ArtworkAssessmentsController {
 
     try {
       await this.artworkService.deleteAssessments(studentId, artworkId)
-      return this.responseService.successResponse(response, 'Anekdot berhasil dihapus')
+      return this.responseService.successResponse(response, 'Hasil karya berhasil dihapus')
     } catch (error) {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, error.message, 404)

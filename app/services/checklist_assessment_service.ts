@@ -1,4 +1,4 @@
-import { CreateChecklistDto } from '#dto/checklist_dto'
+import { CreateChecklistDto, EditChecklistDto } from '#dto/checklist_dto'
 import ChecklistAssessment from '#models/checklist_assessment'
 import ChecklistPoint from '#models/checklist_point'
 import Student from '#models/student'
@@ -59,5 +59,70 @@ export default class ChecklistAssessmentService {
       await trx.rollback()
       throw error
     }
+  }
+
+  async getDetailAssessment(id: number, assessmentId: number) {
+    const student = await Student.findOrFail(id)
+
+    const checklist = await ChecklistAssessment.query()
+      .where('student_id', student.id)
+      .where('id', assessmentId)
+      .preload('checklistPoints')
+      .firstOrFail()
+
+    return checklist
+  }
+
+  async updateAssessment(id: number, assessmentId: number, { checklistPoints }: EditChecklistDto) {
+    const student = await Student.findOrFail(id)
+
+    const checklist = await ChecklistAssessment.query()
+      .where('student_id', student.id)
+      .where('id', assessmentId)
+      .preload('checklistPoints')
+      .firstOrFail()
+
+    const trx = await db.transaction()
+
+    try {
+      if (checklistPoints) {
+        await ChecklistPoint.query({ client: trx })
+          .where('checklist_assessment_id', checklist.id)
+          .delete()
+
+        for (const point of checklistPoints) {
+          await ChecklistPoint.create(
+            {
+              learningGoalId: point.learningGoalId,
+              context: point.context,
+              observedEvent: point.observedEvent,
+              hasAppeared: point.hasAppeared,
+              checklistAssessmentId: checklist.id,
+            },
+            { client: trx }
+          )
+        }
+      }
+
+      await trx.commit()
+      await checklist.load('checklistPoints')
+      return checklist
+    } catch (error) {
+      await trx.rollback()
+      throw error
+    }
+  }
+
+  async deleteAssessment(id: number, assessmentId: number) {
+    const student = await Student.findOrFail(id)
+
+    const checklist = await ChecklistAssessment.query()
+      .where('student_id', student.id)
+      .where('id', assessmentId)
+      .preload('checklistPoints')
+      .firstOrFail()
+
+    await checklist.related('checklistPoints').query().delete()
+    await checklist.delete()
   }
 }

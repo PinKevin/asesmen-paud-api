@@ -9,7 +9,6 @@ export interface CreateChecklistDto {
 }
 
 export interface EditChecklistDto {
-  studentId?: number
   checklistPoints?: {
     learningGoalId: number
     context: string

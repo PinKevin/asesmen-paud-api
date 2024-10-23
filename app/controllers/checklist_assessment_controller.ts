@@ -1,6 +1,7 @@
 import ChecklistAssessmentService from '#services/checklist_assessment_service'
 import ResponseService from '#services/response_service'
 import { createChecklistValidation } from '#validators/checklist/create_checklist'
+import { updateChecklistValidation } from '#validators/checklist/update_checklist'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import { errors } from '@adonisjs/lucid'
@@ -31,7 +32,7 @@ export default class ChecklistAssessmentsController {
       )
       return this.responseService.successResponse(
         response,
-        'Penilaian checklist berhasil diambil',
+        'Penilaian ceklis berhasil diambil',
         data
       )
     } catch (error) {
@@ -57,12 +58,65 @@ export default class ChecklistAssessmentsController {
 
       return this.responseService.successResponse(
         response,
-        'Penilaian checklist berhasil ditambah',
+        'Penilaian ceklis berhasil ditambah',
         assessment,
         201
       )
     } catch (error) {
       return this.responseService.failResponse(response, error.message)
+    }
+  }
+
+  async show({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+    const checklistId = request.param('checklistId')
+
+    try {
+      const checklist = await this.checklistService.getDetailAssessment(studentId, checklistId)
+      return this.responseService.successResponse(response, 'Ceklis berhasil diambil', checklist)
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, error.message, 404)
+      }
+
+      return this.responseService.errorResponse(response, error.message)
+    }
+  }
+
+  async update({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+    const checklistId = request.param('checklistId')
+    const payload = await request.validateUsing(updateChecklistValidation)
+
+    try {
+      const checklist = await this.checklistService.updateAssessment(
+        studentId,
+        checklistId,
+        payload
+      )
+      return this.responseService.successResponse(response, 'Ceklis berhasil diubah', checklist)
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, error.message, 404)
+      }
+
+      return this.responseService.errorResponse(response, error.message)
+    }
+  }
+
+  async destroy({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+    const checklistId = request.param('checklistId')
+
+    try {
+      await this.checklistService.deleteAssessment(studentId, checklistId)
+      return this.responseService.successResponse(response, 'Ceklis berhasil dihapus')
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, error.message, 404)
+      }
+
+      return this.responseService.errorResponse(response, error.message)
     }
   }
 }

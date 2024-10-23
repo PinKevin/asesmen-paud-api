@@ -67,6 +67,12 @@ router
 
     router.get('/students/:id/checklists', [ChecklistAssessmentsController, 'index'])
     router.post('/students/:id/checklists', [ChecklistAssessmentsController, 'store'])
+    router.get('/students/:id/checklists/:checklistId', [ChecklistAssessmentsController, 'show'])
+    router.put('/students/:id/checklists/:checklistId', [ChecklistAssessmentsController, 'update'])
+    router.delete('/students/:id/checklists/:checklistId', [
+      ChecklistAssessmentsController,
+      'destroy',
+    ])
 
     router.get('/test-guard', async () => {
       return {
