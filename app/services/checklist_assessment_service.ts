@@ -22,7 +22,9 @@ export default class ChecklistAssessmentService {
     const checklists = await ChecklistAssessment.query()
       .where('student_id', student.id)
       .whereBetween('created_at', [startDateTime!, endDateTime!])
-      .preload('checklistPoints')
+      .preload('checklistPoints', (query) => {
+        query.preload('learningGoal')
+      })
       .orderBy('created_at', sortOrder)
       .paginate(page, limit)
 
@@ -67,7 +69,9 @@ export default class ChecklistAssessmentService {
     const checklist = await ChecklistAssessment.query()
       .where('student_id', student.id)
       .where('id', assessmentId)
-      .preload('checklistPoints')
+      .preload('checklistPoints', (query) => {
+        query.preload('learningGoal')
+      })
       .firstOrFail()
 
     return checklist
@@ -105,7 +109,9 @@ export default class ChecklistAssessmentService {
       }
 
       await trx.commit()
-      await checklist.load('checklistPoints')
+      await checklist.load('checklistPoints', (query) => {
+        query.preload('learningGoal')
+      })
       return checklist
     } catch (error) {
       await trx.rollback()
