@@ -2,6 +2,7 @@ import LearningGoalService from '#services/learning_goal_service'
 import ResponseService from '#services/response_service'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
+import { errors } from '@adonisjs/lucid'
 
 @inject()
 export default class LearningGoalsController {
@@ -43,5 +44,23 @@ export default class LearningGoalsController {
       'Tujuan pembelajaran berhasil diambil',
       data
     )
+  }
+
+  async getLearningGoalById({ request, response }: HttpContext) {
+    const learningGoalId = request.param('id')
+
+    try {
+      const data = await this.learningGoalService.getLearningGoalById(learningGoalId)
+      return this.responseService.successResponse(
+        response,
+        'Tujuan pembelajaran berhasil diambil',
+        data
+      )
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, 'Tidak ditemukan', 404)
+      }
+      return this.responseService.failResponse(response, `Gagal mengambil. Error: ${error}`, 500)
+    }
   }
 }

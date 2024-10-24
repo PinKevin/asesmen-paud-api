@@ -26,4 +26,9 @@ export default class LearningGoalService {
     const learningGoals = await LearningGoal.findManyBy('sub_learning_scope_id', subLearningScopeId)
     return learningGoals
   }
+
+  async getLearningGoalById(learningGoalId: number) {
+    const learningGoal = await LearningGoal.findOrFail(learningGoalId)
+    return learningGoal
+  }
 }
