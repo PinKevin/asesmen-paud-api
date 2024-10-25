@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
-import PhotoSeriesAssessment from './photo_series_assessment.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import SeriesPhotoAssessment from './series_photo_assessment.js'
 
 export default class SeriesPhoto extends BaseModel {
   @column({ isPrimary: true })
@@ -11,7 +11,7 @@ export default class SeriesPhoto extends BaseModel {
   declare photoLink: string
 
   @column()
-  declare photoSeriesAssessmentId: number
+  declare seriesPhotoAssessmentId: number
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -19,6 +19,6 @@ export default class SeriesPhoto extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  @belongsTo(() => PhotoSeriesAssessment)
-  declare photoSeriesAssessment: BelongsTo<typeof PhotoSeriesAssessment>
+  @belongsTo(() => SeriesPhotoAssessment)
+  declare seriesPhotoAssessment: BelongsTo<typeof SeriesPhotoAssessment>
 }

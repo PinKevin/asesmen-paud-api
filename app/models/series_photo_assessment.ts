@@ -4,7 +4,7 @@ import SeriesPhoto from './series_photo.js'
 import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import LearningGoal from './learning_goal.js'
 
-export default class PhotoSeriesAssessment extends BaseModel {
+export default class SeriesPhotoAssessment extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
@@ -26,6 +26,8 @@ export default class PhotoSeriesAssessment extends BaseModel {
   @hasMany(() => SeriesPhoto)
   declare seriesPhotos: HasMany<typeof SeriesPhoto>
 
-  @manyToMany(() => LearningGoal)
+  @manyToMany(() => LearningGoal, {
+    pivotTable: 'series_photo_points',
+  })
   declare learningGoals: ManyToMany<typeof LearningGoal>
 }
