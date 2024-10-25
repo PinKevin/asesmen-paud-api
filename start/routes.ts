@@ -49,6 +49,12 @@ router
       LearningGoalsController,
       'getLearningGoalsBySubLearningScopeId',
     ])
+    router.get('/competency-by-id/:id', [LearningGoalsController, 'getCompetencyById'])
+    router.get('/learning-scope-by-id/:id', [LearningGoalsController, 'getLearningScopeById'])
+    router.get('/sub-learning-scope-by-id/:id', [
+      LearningGoalsController,
+      'getSubLearningScopeById',
+    ])
     router.get('/learning-goal-by-id/:id', [LearningGoalsController, 'getLearningGoalById'])
 
     router.get('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'index'])

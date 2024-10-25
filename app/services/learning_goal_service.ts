@@ -27,6 +27,18 @@ export default class LearningGoalService {
     return learningGoals
   }
 
+  async getCompetencyById(competencyId: number) {
+    const competency = await Competency.findOrFail(competencyId)
+    return competency
+  }
+  async getLearningScopeById(learningScopeId: number) {
+    const learningScope = await LearningScope.findOrFail(learningScopeId)
+    return learningScope
+  }
+  async getSubLearningScopeById(subLearningScopeId: number) {
+    const subLearningScope = await SubLearningScope.findOrFail(subLearningScopeId)
+    return subLearningScope
+  }
   async getLearningGoalById(learningGoalId: number) {
     const learningGoal = await LearningGoal.findOrFail(learningGoalId)
     return learningGoal

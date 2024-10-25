@@ -46,6 +46,60 @@ export default class LearningGoalsController {
     )
   }
 
+  async getCompetencyById({ request, response }: HttpContext) {
+    const competencyId = request.param('id')
+
+    try {
+      const data = await this.learningGoalService.getCompetencyById(competencyId)
+      return this.responseService.successResponse(
+        response,
+        'Tujuan pembelajaran berhasil diambil',
+        data
+      )
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, 'Tidak ditemukan', 404)
+      }
+      return this.responseService.failResponse(response, `Gagal mengambil. Error: ${error}`, 500)
+    }
+  }
+
+  async getLearningScopeById({ request, response }: HttpContext) {
+    const learningScopeId = request.param('id')
+
+    try {
+      const data = await this.learningGoalService.getLearningScopeById(learningScopeId)
+      return this.responseService.successResponse(
+        response,
+        'Tujuan pembelajaran berhasil diambil',
+        data
+      )
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, 'Tidak ditemukan', 404)
+      }
+      return this.responseService.failResponse(response, `Gagal mengambil. Error: ${error}`, 500)
+    }
+  }
+
+  async getSubLearningScopeById({ request, response }: HttpContext) {
+    const subLearningScopeId = request.param('id')
+
+    try {
+      const data = await this.learningGoalService.getSubLearningScopeById(subLearningScopeId)
+      return this.responseService.successResponse(
+        response,
+        'Tujuan pembelajaran berhasil diambil',
+        data
+      )
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, 'Tidak ditemukan', 404)
+      }
+      return this.responseService.failResponse(response, `Gagal mengambil. Error: ${error}`, 500)
+    }
+  }
+
   async getLearningGoalById({ request, response }: HttpContext) {
     const learningGoalId = request.param('id')
 
