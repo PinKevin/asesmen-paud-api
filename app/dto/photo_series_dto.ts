@@ -7,3 +7,11 @@ export interface CreateSeriesPhotoDto {
   studentId: number
   photos: MultipartFile[]
 }
+
+export interface EditSeriesPhotoDto {
+  description?: string
+  feedback?: string
+  learningGoals?: number[]
+  studentId?: number
+  photos?: MultipartFile[]
+}

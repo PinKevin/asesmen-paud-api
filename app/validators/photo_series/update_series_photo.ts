@@ -1,12 +1,16 @@
 import vine, { SimpleMessagesProvider } from '@vinejs/vine'
 
-export const updateArtworkValidation = vine.compile(
+export const updateSeriesPhotoValidation = vine.compile(
   vine.object({
-    photo: vine
-      .file({
-        size: '5mb',
-        extnames: ['jpg', 'png'],
-      })
+    photos: vine
+      .array(
+        vine.file({
+          size: '5mb',
+          extnames: ['jpg', 'png'],
+        })
+      )
+      .minLength(3)
+      .maxLength(5)
       .optional(),
     description: vine.string().trim().optional(),
     feedback: vine.string().trim().optional(),
@@ -21,13 +25,15 @@ const messages = {
   'notEmpty': '{{ field }} tidak boleh kosong',
   'file.size': 'Ukuran file harus di bawah 5 MB',
   'file.extname': 'File harus berformat .jpg, .jpeg, atau .png',
+  'array.minLength': '{{ field }} harus diisi minimal {{ min }} anggota',
+  'array.maxLength': '{{ field }} harus diisi maksimal {{ max }} anggota',
 }
 
 const fields = {
-  photo: 'Foto',
+  photos: 'Foto-foto',
   description: 'Deskripsi',
   feedback: 'Umpan balik',
   learningGoals: 'Tujuan pembelajaran',
 }
 
-updateArtworkValidation.messagesProvider = new SimpleMessagesProvider(messages, fields)
+updateSeriesPhotoValidation.messagesProvider = new SimpleMessagesProvider(messages, fields)

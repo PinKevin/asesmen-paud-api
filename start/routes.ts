@@ -85,15 +85,18 @@ router
 
     router.get('/students/:id/series-photos', [SeriesPhotoAssessmentsController, 'index'])
     router.post('/students/:id/series-photos', [SeriesPhotoAssessmentsController, 'store'])
-    // router.get('/students/:id/series-photos/:seriesPhotoId', [ArtworkAssessmentsController, 'show'])
-    // router.put('/students/:id/series-photos/:seriesPhotoId', [
-    //   ArtworkAssessmentsController,
-    //   'update',
-    // ])
-    // router.delete('/students/:id/series-photos/:seriesPhotoId', [
-    //   ArtworkAssessmentsController,
-    //   'destroy',
-    // ])
+    router.get('/students/:id/series-photos/:seriesPhotoId', [
+      SeriesPhotoAssessmentsController,
+      'show',
+    ])
+    router.put('/students/:id/series-photos/:seriesPhotoId', [
+      SeriesPhotoAssessmentsController,
+      'update',
+    ])
+    router.delete('/students/:id/series-photos/:seriesPhotoId', [
+      SeriesPhotoAssessmentsController,
+      'destroy',
+    ])
 
     router.get('/test-guard', async () => {
       return {

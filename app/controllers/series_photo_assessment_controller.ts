@@ -1,9 +1,10 @@
 import ResponseService from '#services/response_service'
-import { createSeriesPhotoValidation } from '#validators/photo_series/create_photo_series'
+import { createSeriesPhotoValidation } from '#validators/photo_series/create_series_photo'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import { errors } from '@adonisjs/lucid'
 import SeriesPhotoAssessmentService from '#services/series_photo_assessment_service'
+import { updateSeriesPhotoValidation } from '#validators/photo_series/update_series_photo'
 
 @inject()
 export default class SeriesPhotoAssessmentsController {
@@ -66,6 +67,70 @@ export default class SeriesPhotoAssessmentsController {
       )
     } catch (error) {
       return this.responseService.failResponse(response, error.message)
+    }
+  }
+
+  async show({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+    const seriesPhotoId = request.param('seriesPhotoId')
+
+    try {
+      const seriesPhoto = await this.seriesPhotoService.getDetailAssessment(
+        studentId,
+        seriesPhotoId
+      )
+      return this.responseService.successResponse(
+        response,
+        'Foto berseri berhasil diambil',
+        seriesPhoto
+      )
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, error.message, 404)
+      }
+
+      return this.responseService.errorResponse(response, error.message)
+    }
+  }
+
+  async update({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+    const seriesPhotoId = request.param('seriesPhotoId')
+    const payload = await request.validateUsing(updateSeriesPhotoValidation)
+
+    try {
+      const seriesPhoto = await this.seriesPhotoService.updateAssessment(
+        studentId,
+        seriesPhotoId,
+        payload
+      )
+      return this.responseService.successResponse(
+        response,
+        'Foto berseri berhasil diubah',
+        seriesPhoto
+      )
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, error.message, 404)
+      }
+
+      return this.responseService.errorResponse(response, error.message)
+    }
+  }
+
+  async destroy({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+    const seriesPhotoId = request.param('seriesPhotoId')
+
+    try {
+      await this.seriesPhotoService.deleteAssessment(studentId, seriesPhotoId)
+      return this.responseService.successResponse(response, 'Foto berseri berhasil dihapus')
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, error.message, 404)
+      }
+
+      return this.responseService.errorResponse(response, error.message)
     }
   }
 }
