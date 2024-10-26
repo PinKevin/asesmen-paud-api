@@ -50,7 +50,7 @@ export default class StudentService {
 
   async getStudentInfo(id: number) {
     const student = await Student.query()
-      .select('id', 'name', 'nisn', 'gender', 'religion')
+      .select('id', 'name', 'nisn', 'gender', 'religion', 'photoProfileLink')
       .where('id', id)
       .preload('classes', (query) => {
         query.select('name').orderBy('class_student.created_at', 'desc').limit(1)
@@ -65,6 +65,7 @@ export default class StudentService {
       gender: student.gender,
       religion: student.religion,
       class: latestClass,
+      photoProfileLink: student.photoProfileLink,
     }
   }
 }

@@ -1,5 +1,6 @@
 import {
   AlignmentType,
+  BorderStyle,
   Document,
   Footer,
   Header,
@@ -12,6 +13,7 @@ import {
   TableCell,
   TableRow,
   TextRun,
+  WidthType,
 } from 'docx'
 import AnecdotalAssessmentService from './anecdotal_assessment_service.js'
 import { inject } from '@adonisjs/core'
@@ -23,15 +25,179 @@ import drive from '@adonisjs/drive/services/main'
 import ArtworkAssessment from '#models/artwork_assessment'
 import ChecklistAssessment from '#models/checklist_assessment'
 import SeriesPhotoAssessment from '#models/series_photo_assessment'
+import StudentService from './student_service.js'
+import { DateTime } from 'luxon'
 
 @inject()
 export default class ReportPrintHistoryService {
   constructor(
+    private studentService: StudentService,
     private anecdotalService: AnecdotalAssessmentService,
     private artworkService: ArtworkAssessmentService,
     private checklistService: ChecklistAssessmentService,
     private seriesPhotoService: SeriesPhotoAssessmentService
   ) {}
+
+  async createInfoTable(student: {
+    name: string
+    nisn: string
+    gender: string
+    religion: string
+    class: string
+    photoProfileLink: string
+  }) {
+    const imageData = await drive.use().getBytes(student.photoProfileLink)
+
+    const imageAndNameRow = new TableRow({
+      children: [
+        new TableCell({
+          rowSpan: 5,
+          verticalAlign: AlignmentType.CENTER,
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [
+                new ImageRun({
+                  data: imageData,
+                  transformation: { width: 113, height: 151 },
+                  type: 'jpg',
+                }),
+              ],
+            }),
+          ],
+        }),
+        new TableCell({
+          verticalAlign: AlignmentType.CENTER,
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.JUSTIFIED,
+              tabStops: [
+                {
+                  position: 1500,
+                  type: 'left',
+                },
+              ],
+              children: [
+                new TextRun({ text: `Nama\t: ${student.name}`, bold: true, size: '12pt' }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+
+    const nisnRow = new TableRow({
+      children: [
+        new TableCell({
+          verticalAlign: AlignmentType.CENTER,
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.JUSTIFIED,
+              tabStops: [
+                {
+                  position: 1500,
+                  type: 'left',
+                },
+              ],
+              children: [
+                new TextRun({ text: `NISN\t: ${student.nisn}`, bold: true, size: '12pt' }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+
+    const classRow = new TableRow({
+      children: [
+        new TableCell({
+          verticalAlign: AlignmentType.CENTER,
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.JUSTIFIED,
+              tabStops: [
+                {
+                  position: 1500,
+                  type: 'left',
+                },
+              ],
+              children: [
+                new TextRun({ text: `Kelas\t: ${student.class}`, bold: true, size: '12pt' }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+
+    const genderRow = new TableRow({
+      children: [
+        new TableCell({
+          verticalAlign: AlignmentType.CENTER,
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.JUSTIFIED,
+              tabStops: [
+                {
+                  position: 1500,
+                  type: 'left',
+                },
+              ],
+              children: [
+                new TextRun({
+                  text: `Jenis Kelamin\t: ${student.gender}`,
+                  bold: true,
+                  size: '12pt',
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+
+    const religionRow = new TableRow({
+      children: [
+        new TableCell({
+          verticalAlign: AlignmentType.CENTER,
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.JUSTIFIED,
+              tabStops: [
+                {
+                  position: 1500,
+                  type: 'left',
+                },
+              ],
+              children: [
+                new TextRun({
+                  text: `Agama\t: ${student.religion}`,
+                  bold: true,
+                  size: '12pt',
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+
+    return new Table({
+      rows: [imageAndNameRow, nisnRow, classRow, genderRow, religionRow],
+      width: {
+        size: 100,
+        type: WidthType.PERCENTAGE,
+      },
+      borders: {
+        top: { style: BorderStyle.NONE },
+        bottom: { style: BorderStyle.NONE },
+        left: { style: BorderStyle.NONE },
+        right: { style: BorderStyle.NONE },
+        insideVertical: { style: BorderStyle.NONE },
+        insideHorizontal: { style: BorderStyle.NONE },
+      },
+    })
+  }
 
   async createAnecdotalTable(anecdotals: AnecdotalAssessment[]) {
     const rows = await Promise.all(
@@ -577,25 +743,45 @@ export default class ReportPrintHistoryService {
     })
   }
 
-  async printReport(studentId: number) {
-    const [anecdotals, artworks, checklists, seriesPhotos] = await Promise.all([
+  async printReport(
+    studentId: number,
+    startDate = DateTime.now().minus({ days: 30 }).toFormat('yyyy-LL-dd'),
+    endDate = DateTime.now().toFormat('yyyy-LL-dd')
+  ) {
+    const [student, anecdotals, artworks, checklists, seriesPhotos] = await Promise.all([
+      this.studentService.getStudentInfo(studentId),
       this.anecdotalService.getAllAssessments(studentId, {
         usePagination: false,
         sortOrder: 'asc',
+        startDate: startDate,
+        endDate: endDate,
       }),
       this.artworkService.getAllAssessments(studentId, {
         usePagination: false,
         sortOrder: 'asc',
+        startDate: startDate,
+        endDate: endDate,
       }),
       this.checklistService.getAllAssessments(studentId, {
         usePagination: false,
         sortOrder: 'asc',
+        startDate: startDate,
+        endDate: endDate,
       }),
       this.seriesPhotoService.getAllAssessments(studentId, {
         usePagination: false,
         sortOrder: 'asc',
+        startDate: startDate,
+        endDate: endDate,
       }),
     ])
+
+    const formattedStartDate = DateTime.fromFormat(startDate, 'yyyy-LL-dd')
+      .setLocale('id-ID')
+      .toFormat('dd LLLL yyyy')
+    const formattedEndDate = DateTime.fromFormat(endDate, 'yyyy-LL-dd')
+      .setLocale('id-ID')
+      .toFormat('dd LLLL yyyy')
 
     const doc = new Document({
       sections: [
@@ -614,7 +800,7 @@ export default class ReportPrintHistoryService {
                 new Paragraph({
                   alignment: AlignmentType.CENTER,
                   children: [
-                    new TextRun({ text: 'LAPORAN PENILAIAN PAUD', size: '12pt' }),
+                    new TextRun({ text: 'LAPORAN PENILAIAN MURID', size: '12pt' }),
                     new TextRun({
                       size: '12pt',
                       children: [
@@ -623,6 +809,16 @@ export default class ReportPrintHistoryService {
                         ' dari ',
                         PageNumber.TOTAL_PAGES,
                       ],
+                    }),
+                  ],
+                }),
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({ text: 'Rentang', size: '12pt' }),
+                    new TextRun({
+                      size: '12pt',
+                      children: [` ${formattedStartDate} hingga ${formattedEndDate}`],
                     }),
                   ],
                 }),
@@ -654,6 +850,10 @@ export default class ReportPrintHistoryService {
             }),
           },
           children: [
+            await this.createInfoTable(student),
+            new Paragraph({
+              children: [new TextRun('\n')],
+            }),
             new Paragraph({
               alignment: AlignmentType.CENTER,
               children: [new TextRun({ text: 'Asesmen Anekdot', bold: true, size: '12pt' })],
