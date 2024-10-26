@@ -14,22 +14,26 @@ export default class SeriesPhotoAssessmentService {
     limit: number = 10,
     startDate: string = DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
     endDate: string = DateTime.now().toFormat('yyyy-LL-dd'),
-    sortOrder: 'asc' | 'desc' = 'desc'
+    sortOrder: 'asc' | 'desc' = 'desc',
+    usePagination: boolean = true
   ) {
     const student = await Student.findOrFail(id)
 
     const startDateTime = DateTime.fromISO(startDate).set({ hour: 0, minute: 0, second: 0 }).toSQL()
     const endDateTime = DateTime.fromISO(endDate).set({ hour: 23, minute: 59, second: 59 }).toSQL()
 
-    const seriesPhoto = await SeriesPhotoAssessment.query()
+    const seriesPhotosQuery = SeriesPhotoAssessment.query()
       .where('student_id', student.id)
       .whereBetween('created_at', [startDateTime!, endDateTime!])
       .preload('learningGoals')
       .preload('seriesPhotos')
       .orderBy('created_at', sortOrder)
-      .paginate(page, limit)
 
-    return seriesPhoto
+    const seriesPhotos = usePagination
+      ? await seriesPhotosQuery.paginate(page, limit)
+      : await seriesPhotosQuery
+
+    return seriesPhotos
   }
 
   async addAssessment({

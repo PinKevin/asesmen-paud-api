@@ -13,24 +13,26 @@ export default class ArtworkAssessmentService {
     limit: number = 10,
     startDate: string = DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
     endDate: string = DateTime.now().toFormat('yyyy-LL-dd'),
-    sortOrder: 'asc' | 'desc' = 'desc'
+    sortOrder: 'asc' | 'desc' = 'desc',
+    usePagination: boolean = true
   ) {
     const student = await Student.findOrFail(id)
 
     const startDateTime = DateTime.fromISO(startDate).set({ hour: 0, minute: 0, second: 0 }).toSQL()
     const endDateTime = DateTime.fromISO(endDate).set({ hour: 23, minute: 59, second: 59 }).toSQL()
 
-    const artworks = await ArtworkAssessment.query()
+    const artworksQuery = ArtworkAssessment.query()
       .where('student_id', student.id)
       .whereBetween('created_at', [startDateTime!, endDateTime!])
       .preload('learningGoals')
       .orderBy('created_at', sortOrder)
-      .paginate(page, limit)
+
+    const artworks = usePagination ? await artworksQuery.paginate(page, limit) : await artworksQuery
 
     return artworks
   }
 
-  async addAssessments({
+  async addAssessment({
     photo,
     description,
     feedback,
@@ -66,7 +68,7 @@ export default class ArtworkAssessmentService {
     }
   }
 
-  async getDetailAssessments(id: number, assessmentId: number) {
+  async getDetailAssessment(id: number, assessmentId: number) {
     const student = await Student.findOrFail(id)
 
     const artwork = await ArtworkAssessment.query()
@@ -78,7 +80,7 @@ export default class ArtworkAssessmentService {
     return artwork
   }
 
-  async updateAssessments(
+  async updateAssessment(
     id: number,
     assessmentId: number,
     { photo, description, feedback, learningGoals }: EditArtworkDto
@@ -128,7 +130,7 @@ export default class ArtworkAssessmentService {
     }
   }
 
-  async deleteAssessments(id: number, assessmentId: number) {
+  async deleteAssessment(id: number, assessmentId: number) {
     const student = await Student.findOrFail(id)
 
     const artwork = await ArtworkAssessment.query()

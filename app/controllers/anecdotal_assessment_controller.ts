@@ -57,7 +57,7 @@ export default class AnecdotalAssessmentsController {
     }
 
     try {
-      const assessment = await this.anecdotalService.addAssessments(data)
+      const assessment = await this.anecdotalService.addAssessment(data)
 
       return this.responseService.successResponse(
         response,
@@ -75,7 +75,7 @@ export default class AnecdotalAssessmentsController {
     const anecdotalId = request.param('anecdotalId')
 
     try {
-      const anecdotal = await this.anecdotalService.getDetailAssessments(studentId, anecdotalId)
+      const anecdotal = await this.anecdotalService.getDetailAssessment(studentId, anecdotalId)
       return this.responseService.successResponse(response, 'Anekdot berhasil diambil', anecdotal)
     } catch (error) {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
@@ -92,7 +92,7 @@ export default class AnecdotalAssessmentsController {
     const payload = await request.validateUsing(updateAnecdotalValidation)
 
     try {
-      const anecdotal = await this.anecdotalService.updateAssessments(
+      const anecdotal = await this.anecdotalService.updateAssessment(
         studentId,
         anecdotalId,
         payload
@@ -112,7 +112,7 @@ export default class AnecdotalAssessmentsController {
     const anecdotalId = request.param('anecdotalId')
 
     try {
-      await this.anecdotalService.deleteAssessments(studentId, anecdotalId)
+      await this.anecdotalService.deleteAssessment(studentId, anecdotalId)
       return this.responseService.successResponse(response, 'Anekdot berhasil dihapus')
     } catch (error) {
       if (error instanceof errors.E_ROW_NOT_FOUND) {

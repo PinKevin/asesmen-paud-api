@@ -13,24 +13,28 @@ export default class AnecdotalAssessmentService {
     limit: number = 10,
     startDate: string = DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
     endDate: string = DateTime.now().toFormat('yyyy-LL-dd'),
-    sortOrder: 'asc' | 'desc' = 'desc'
+    sortOrder: 'asc' | 'desc' = 'desc',
+    usePagination: boolean = true
   ) {
     const student = await Student.findOrFail(id)
 
     const startDateTime = DateTime.fromISO(startDate).set({ hour: 0, minute: 0, second: 0 }).toSQL()
     const endDateTime = DateTime.fromISO(endDate).set({ hour: 23, minute: 59, second: 59 }).toSQL()
 
-    const anecdotals = await AnecdotalAssessment.query()
+    const anecdotalsQuery = AnecdotalAssessment.query()
       .where('student_id', student.id)
       .whereBetween('created_at', [startDateTime!, endDateTime!])
       .preload('learningGoals')
       .orderBy('created_at', sortOrder)
-      .paginate(page, limit)
+
+    const anecdotals = usePagination
+      ? await anecdotalsQuery.paginate(page, limit)
+      : await anecdotalsQuery
 
     return anecdotals
   }
 
-  async addAssessments({
+  async addAssessment({
     photo,
     description,
     feedback,
@@ -66,7 +70,7 @@ export default class AnecdotalAssessmentService {
     }
   }
 
-  async getDetailAssessments(id: number, assessmentId: number) {
+  async getDetailAssessment(id: number, assessmentId: number) {
     const student = await Student.findOrFail(id)
 
     const anecdotal = await AnecdotalAssessment.query()
@@ -78,7 +82,7 @@ export default class AnecdotalAssessmentService {
     return anecdotal
   }
 
-  async updateAssessments(
+  async updateAssessment(
     id: number,
     assessmentId: number,
     { photo, description, feedback, learningGoals }: EditAnecdotalDto
@@ -128,7 +132,7 @@ export default class AnecdotalAssessmentService {
     }
   }
 
-  async deleteAssessments(id: number, assessmentId: number) {
+  async deleteAssessment(id: number, assessmentId: number) {
     const student = await Student.findOrFail(id)
 
     const anecdotal = await AnecdotalAssessment.query()
