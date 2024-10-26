@@ -22,14 +22,13 @@ export default class ArtworkAssessmentsController {
     const sortOrder = request.input('sort-order')
 
     try {
-      const data = await this.artworkService.getAllAssessments(
-        id,
+      const data = await this.artworkService.getAllAssessments(id, {
         page,
         limit,
         startDate,
         endDate,
-        sortOrder
-      )
+        sortOrder,
+      })
       return this.responseService.successResponse(
         response,
         'Penilaian hasil karya berhasil diambil',

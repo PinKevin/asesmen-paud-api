@@ -22,14 +22,13 @@ export default class SeriesPhotoAssessmentsController {
     const sortOrder = request.input('sort-order')
 
     try {
-      const data = await this.seriesPhotoService.getAllAssessments(
-        id,
+      const data = await this.seriesPhotoService.getAllAssessments(id, {
         page,
         limit,
         startDate,
         endDate,
-        sortOrder
-      )
+        sortOrder,
+      })
       return this.responseService.successResponse(
         response,
         'Penilaian foto berseri berhasil diambil',

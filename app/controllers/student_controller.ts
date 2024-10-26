@@ -3,6 +3,7 @@ import AuthService from '#services/auth_service'
 import ResponseService from '#services/response_service'
 import StudentService from '#services/student_service'
 import { inject } from '@adonisjs/core'
+import { errors } from '@adonisjs/lucid'
 
 @inject()
 export default class StudentController {
@@ -29,5 +30,20 @@ export default class StudentController {
       sortOrder
     )
     return this.responseService.successResponse(response, 'Data murid berhasil diambil', students)
+  }
+
+  async getStudentInfo({ request, response }: HttpContext) {
+    const id = request.param('id')
+
+    try {
+      const data = await this.studentService.getStudentInfo(id)
+      return this.responseService.successResponse(response, 'Info siswa berhasil diambil', data)
+    } catch (error) {
+      if (error instanceof errors.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, error.message, 404)
+      }
+
+      return this.responseService.errorResponse(response, error.message)
+    }
   }
 }

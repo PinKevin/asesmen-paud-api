@@ -6,7 +6,6 @@ import {
   ImageRun,
   NumberFormat,
   Packer,
-  PageBreak,
   PageNumber,
   Paragraph,
   Table,

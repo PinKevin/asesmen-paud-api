@@ -22,14 +22,13 @@ export default class ChecklistAssessmentsController {
     const sortOrder = request.input('sort-order')
 
     try {
-      const data = await this.checklistService.getAllAssessments(
-        id,
+      const data = await this.checklistService.getAllAssessments(id, {
         page,
         limit,
         startDate,
         endDate,
-        sortOrder
-      )
+        sortOrder,
+      })
       return this.responseService.successResponse(
         response,
         'Penilaian ceklis berhasil diambil',

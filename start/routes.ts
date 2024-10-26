@@ -40,6 +40,7 @@ router
     router.get('/profile', [AuthController, 'getProfile'])
 
     router.get('/students', [StudentController, 'index'])
+    router.get('/students/:id', [StudentController, 'getStudentInfo'])
     router.get('/classes', [TeacherController, 'getTeacherClasses'])
 
     router.get('/competencies', [LearningGoalsController, 'getAllCompetencies'])

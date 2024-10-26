@@ -1,3 +1,4 @@
+import Student from '#models/student'
 import User from '#models/user'
 import db from '@adonisjs/lucid/services/db'
 
@@ -45,5 +46,25 @@ export default class StudentService {
     const students = await studentQuery.paginate(page, perPage)
 
     return students
+  }
+
+  async getStudentInfo(id: number) {
+    const student = await Student.query()
+      .select('id', 'name', 'nisn', 'gender', 'religion')
+      .where('id', id)
+      .preload('classes', (query) => {
+        query.select('name').orderBy('class_student.created_at', 'desc').limit(1)
+      })
+      .firstOrFail()
+
+    const latestClass = student.classes[0].name
+
+    return {
+      name: student.name,
+      nisn: student.nisn,
+      gender: student.gender,
+      religion: student.religion,
+      class: latestClass,
+    }
   }
 }
