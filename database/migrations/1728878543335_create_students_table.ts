@@ -14,6 +14,7 @@ export default class extends BaseSchema {
       table.enum('gender', Object.values(Gender))
       table.enum('religion', Object.values(Religion))
       table.date('acceptance_date')
+      table.string('photo_profile_link')
       table.timestamp('created_at')
       table.timestamp('updated_at')
     })

@@ -42,6 +42,9 @@ export default class Student extends BaseModel {
   })
   declare acceptanceDate: DateTime
 
+  @column()
+  declare photoProfileLink: string
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

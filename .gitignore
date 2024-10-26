@@ -26,6 +26,7 @@ yarn-error.log
 
 # To preserve folder but not the content
 !/tmp/note.txt
+!/tmp/pp-profile-test.jpeg
 
 /storage/*
 !/storage/note.txt

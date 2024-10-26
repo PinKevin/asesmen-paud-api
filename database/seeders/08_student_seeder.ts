@@ -1,14 +1,22 @@
 import { StudentFactory } from '#database/factories/student_factory'
 import Class from '#models/class'
+import drive from '@adonisjs/drive/services/main'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import { DateTime } from 'luxon'
 
 export default class extends BaseSeeder {
   async run() {
     const classes = await Class.all()
+    const disk = await drive.use()
 
     for (let i = 0; i < 20; i++) {
-      const student = await StudentFactory.create()
+      // const fileName = `/profile-photo/${cuid()}.jpeg`
+      // const fileTest = await disk.get('copied-pp-picture-test.jpeg')
+      // await disk.put(fileName, fileTest, { contentType: 'image/jpeg' })
+
+      const student = await StudentFactory.merge({
+        photoProfileLink: 'pp-profile-test.jpeg',
+      }).create()
       const randomClasses = classes
         .sort(() => 0.5 - Math.random())
         .slice(0, Math.floor(Math.random() * classes.length) + 1)
