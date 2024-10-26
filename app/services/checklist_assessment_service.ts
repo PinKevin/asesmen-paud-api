@@ -1,4 +1,5 @@
 import { CreateChecklistDto, EditChecklistDto } from '#dto/checklist_dto'
+import { GetAllAssessmentsOptions } from '#dto/get_all_options'
 import ChecklistAssessment from '#models/checklist_assessment'
 import ChecklistPoint from '#models/checklist_point'
 import Student from '#models/student'
@@ -6,15 +7,16 @@ import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 
 export default class ChecklistAssessmentService {
-  async getAllAssessments(
-    id: number,
-    page: number = 1,
-    limit: number = 10,
-    startDate: string = DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
-    endDate: string = DateTime.now().toFormat('yyyy-LL-dd'),
-    sortOrder: 'asc' | 'desc' = 'desc',
-    usePagination: boolean = true
-  ) {
+  async getAllAssessments(id: number, options: GetAllAssessmentsOptions = {}) {
+    const {
+      page = 1,
+      limit = 10,
+      startDate = DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
+      endDate = DateTime.now().toFormat('yyyy-LL-dd'),
+      sortOrder = 'desc',
+      usePagination = true,
+    } = options
+
     const student = await Student.findOrFail(id)
 
     const startDateTime = DateTime.fromISO(startDate).set({ hour: 0, minute: 0, second: 0 }).toSQL()

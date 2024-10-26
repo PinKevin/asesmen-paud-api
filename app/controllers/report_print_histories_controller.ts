@@ -10,8 +10,10 @@ export default class ReportPrintHistoriesController {
     // private responseService: ResponseService
   ) {}
 
-  async downloadReport({ response }: HttpContext) {
-    const wordBuffer = await this.reportService.printReport()
+  async downloadReport({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+
+    const wordBuffer = await this.reportService.printReport(studentId)
     response.header(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
