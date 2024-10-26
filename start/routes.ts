@@ -9,6 +9,8 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const ReportPrintHistoriesController = () =>
+  import('#controllers/report_print_histories_controller')
 const SeriesPhotoAssessmentsController = () =>
   import('#controllers/series_photo_assessment_controller')
 const ChecklistAssessmentsController = () => import('#controllers/checklist_assessment_controller')
@@ -24,6 +26,8 @@ router.get('/', async () => {
     hai: 'gais',
   }
 })
+
+router.get('/test-print', [ReportPrintHistoriesController, 'downloadReport'])
 
 router.post('/sign-up', [TeacherController, 'registerTeacher'])
 router.put('/complete-sign-up/:id', [TeacherController, 'completeTeacherAfterRegister'])
