@@ -4,6 +4,10 @@ import { Gender, Religion } from '#enum/user_enum'
 import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import AnecdotalAssessment from './anecdotal_assessment.js'
 import Class from './class.js'
+import ArtworkAssessment from './artwork_assessment.js'
+import ChecklistAssessment from './checklist_assessment.js'
+import SeriesPhotoAssessment from './series_photo_assessment.js'
+import ReportPrintHistory from './report_print_history.js'
 
 export default class Student extends BaseModel {
   @column({ isPrimary: true })
@@ -49,4 +53,16 @@ export default class Student extends BaseModel {
 
   @hasMany(() => AnecdotalAssessment)
   declare anecdotalAssessments: HasMany<typeof AnecdotalAssessment>
+
+  @hasMany(() => ArtworkAssessment)
+  declare artworkAssessments: HasMany<typeof ArtworkAssessment>
+
+  @hasMany(() => ChecklistAssessment)
+  declare checklistAssessments: HasMany<typeof ChecklistAssessment>
+
+  @hasMany(() => SeriesPhotoAssessment)
+  declare seriesPhotoAssessments: HasMany<typeof SeriesPhotoAssessment>
+
+  @hasMany(() => ReportPrintHistory)
+  declare reportPrintHistories: HasMany<typeof ReportPrintHistory>
 }
