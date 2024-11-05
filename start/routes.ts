@@ -101,8 +101,13 @@ router
       'destroy',
     ])
 
-    router.post('/create-report/:id', [ReportPrintHistoriesController, 'createAndDownloadReport'])
-    router.get('/download-report/:reportId', [
+    router.get('/students/:id/reports', [ReportPrintHistoriesController, 'indexReport'])
+    router.get('/students/:id/reports/:reportId', [ReportPrintHistoriesController, 'showReport'])
+    router.post('/students/:id/create-report', [
+      ReportPrintHistoriesController,
+      'createAndDownloadReport',
+    ])
+    router.get('/students/:id/reports/:reportId/download-report', [
       ReportPrintHistoriesController,
       'downloadExistingReport',
     ])

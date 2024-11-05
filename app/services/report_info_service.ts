@@ -1,3 +1,5 @@
+import { GetAllAssessmentsOptions } from '#dto/get_all_options'
+import ReportPrintHistory from '#models/report_print_history'
 import SchoolYear from '#models/school_year'
 import { DateTime } from 'luxon'
 
@@ -14,5 +16,36 @@ export default class ReportInfoService {
       .firstOrFail()
 
     return semester
+  }
+
+  async getAllStudentReportHistory(studentId: number, options: GetAllAssessmentsOptions = {}) {
+    const {
+      page = 1,
+      limit = 10,
+      startDate = DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
+      endDate = DateTime.now().toFormat('yyyy-LL-dd'),
+      sortOrder = 'desc',
+      usePagination = true,
+    } = options
+
+    const startDateTime = DateTime.fromISO(startDate).set({ hour: 0, minute: 0, second: 0 }).toSQL()
+    const endDateTime = DateTime.fromISO(endDate).set({ hour: 23, minute: 59, second: 59 }).toSQL()
+
+    const reportsQuery = ReportPrintHistory.query()
+      .where('studentId', studentId)
+      .whereBetween('created_at', [startDateTime!, endDateTime!])
+      .orderBy('created_at', sortOrder)
+
+    const reports = usePagination ? await reportsQuery.paginate(page, limit) : await reportsQuery
+
+    return reports
+  }
+
+  async getStudentReportHistoryById(studentId: number, reportId: number) {
+    const report = await ReportPrintHistory.query()
+      .where('studentId', studentId)
+      .andWhere('reportId', reportId)
+      .firstOrFail()
+    return report
   }
 }

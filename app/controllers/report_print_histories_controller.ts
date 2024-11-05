@@ -1,5 +1,6 @@
 import ReportPrintHistory from '#models/report_print_history'
 import AuthService from '#services/auth_service'
+import ReportInfoService from '#services/report_info_service'
 import ReportPrintHistoryService from '#services/report_print_history_service'
 import ResponseService from '#services/response_service'
 import { inject } from '@adonisjs/core'
@@ -12,6 +13,7 @@ import { DateTime } from 'luxon'
 export default class ReportPrintHistoriesController {
   constructor(
     private reportService: ReportPrintHistoryService,
+    private reportInfoService: ReportInfoService,
     private authService: AuthService,
     private responseService: ResponseService
   ) {}
@@ -82,6 +84,44 @@ export default class ReportPrintHistoriesController {
       } else if (error.cause === 'File not found') {
         return this.responseService.failResponse(response, 'File tidak ditemukan', 404)
       }
+    }
+  }
+
+  async indexReport({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+
+    const page = request.input('page')
+    const limit = request.input('limit')
+    const startDate = request.input('from')
+    const endDate = request.input('until')
+    const sortOrder = request.input('sort-order')
+
+    try {
+      const data = await this.reportInfoService.getAllStudentReportHistory(studentId, {
+        page,
+        limit,
+        startDate,
+        endDate,
+        sortOrder,
+      })
+      return this.responseService.successResponse(response, 'Laporan berhasil diambil', data)
+    } catch (error) {
+      return this.responseService.errorResponse(response)
+    }
+  }
+
+  async showReport({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+    const reportId = request.param('reportId')
+
+    try {
+      const data = await this.reportInfoService.getStudentReportHistoryById(studentId, reportId)
+      return this.responseService.successResponse(response, 'Laporan berhasil diambil', data)
+    } catch (error) {
+      if (error instanceof lucidError.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, 'Data tidak ditemukan', 404)
+      }
+      return this.responseService.errorResponse(response)
     }
   }
 }
