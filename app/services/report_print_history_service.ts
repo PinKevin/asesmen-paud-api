@@ -805,7 +805,7 @@ export default class ReportPrintHistoryService {
               children: [
                 new Paragraph({
                   alignment: AlignmentType.LEFT,
-                  children: [new TextRun({ text: 'Orang Tua/Murid', size: '12pt' })],
+                  children: [new TextRun({ text: 'Orang Tua/Wali Murid', size: '12pt' })],
                 }),
               ],
             }),
@@ -1063,6 +1063,6 @@ export default class ReportPrintHistoryService {
     })
 
     const buffer = await Packer.toBuffer(doc)
-    return buffer
+    return { student, buffer, formattedStartDate, formattedEndDate }
   }
 }

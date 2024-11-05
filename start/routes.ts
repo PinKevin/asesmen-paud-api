@@ -101,7 +101,11 @@ router
       'destroy',
     ])
 
-    router.get('/test-print/:id', [ReportPrintHistoriesController, 'downloadReport'])
+    router.post('/create-report/:id', [ReportPrintHistoriesController, 'createAndDownloadReport'])
+    router.get('/download-report/:reportId', [
+      ReportPrintHistoriesController,
+      'downloadExistingReport',
+    ])
 
     router.get('/test-guard', async () => {
       return {
