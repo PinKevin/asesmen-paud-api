@@ -27,8 +27,6 @@ router.get('/', async () => {
   }
 })
 
-router.get('/test-print/:id', [ReportPrintHistoriesController, 'downloadReport'])
-
 router.post('/sign-up', [TeacherController, 'registerTeacher'])
 router.put('/complete-sign-up/:id', [TeacherController, 'completeTeacherAfterRegister'])
 router.post('/sign-in', [AuthController, 'login'])
@@ -102,6 +100,8 @@ router
       SeriesPhotoAssessmentsController,
       'destroy',
     ])
+
+    router.get('/test-print/:id', [ReportPrintHistoriesController, 'downloadReport'])
 
     router.get('/test-guard', async () => {
       return {

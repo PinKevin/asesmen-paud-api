@@ -96,4 +96,9 @@ export default class TeacherService {
     const classes = await classesQuery
     return classes
   }
+
+  async getTeacherInfo(user: User) {
+    const teacher = await Teacher.query().where('userId', user.id).first()
+    return teacher
+  }
 }

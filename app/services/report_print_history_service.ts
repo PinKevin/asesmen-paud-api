@@ -27,10 +27,15 @@ import ChecklistAssessment from '#models/checklist_assessment'
 import SeriesPhotoAssessment from '#models/series_photo_assessment'
 import StudentService from './student_service.js'
 import { DateTime } from 'luxon'
+import ReportInfoService from './report_info_service.js'
+import User from '#models/user'
+import TeacherService from './teacher_service.js'
 
 @inject()
 export default class ReportPrintHistoryService {
   constructor(
+    private teacherService: TeacherService,
+    private reportInfoService: ReportInfoService,
     private studentService: StudentService,
     private anecdotalService: AnecdotalAssessmentService,
     private artworkService: ArtworkAssessmentService,
@@ -200,133 +205,259 @@ export default class ReportPrintHistoryService {
   }
 
   async createAnecdotalTable(anecdotals: AnecdotalAssessment[]) {
-    const rows = await Promise.all(
-      anecdotals.map(async (anecdotal) => {
-        const imageData = await drive.use().getBytes(anecdotal.photoLink)
+    if (anecdotals.length > 0) {
+      const rows = await Promise.all(
+        anecdotals.map(async (anecdotal) => {
+          const imageData = await drive.use().getBytes(anecdotal.photoLink)
 
-        const dateRow = new TableRow({
-          children: [
-            new TableCell({
-              columnSpan: 2,
-              children: [
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: `Penilaian tanggal: ${anecdotal.createdAt.plus({ hours: 7 }).setLocale('id-ID').toFormat("dd LLLL yyyy 'pukul' HH:mm 'WIB'")}`,
-                      size: '12pt',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
+          const dateRow = new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 2,
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: `Penilaian tanggal: ${anecdotal.createdAt.plus({ hours: 7 }).setLocale('id-ID').toFormat("dd LLLL yyyy 'pukul' HH:mm 'WIB'")}`,
+                        size: '12pt',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          })
+
+          const imageRow = new TableRow({
+            children: [
+              new TableCell({
+                rowSpan: 3,
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new ImageRun({
+                        data: imageData,
+                        transformation: { width: 151, height: 151 },
+                        type: 'jpg',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: 'Deskripsi:', size: '12pt', bold: true })],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: anecdotal.description, size: '12pt' })],
+                  }),
+                ],
+              }),
+            ],
+          })
+
+          const feedbackRow = new TableRow({
+            children: [
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: 'Umpan Balik:', size: '12pt', bold: true })],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: anecdotal.feedback, size: '12pt' })],
+                  }),
+                ],
+              }),
+            ],
+          })
+
+          const learningGoalsRow = new TableRow({
+            children: [
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [
+                      new TextRun({ text: 'Capaian Pembelajaran:', size: '12pt', bold: true }),
+                    ],
+                  }),
+                  ...anecdotal.learningGoals.map(
+                    (goal) =>
+                      new Paragraph({
+                        alignment: AlignmentType.JUSTIFIED,
+                        children: [
+                          new TextRun({
+                            text: `${goal.learningGoalCode} - ${goal.learningGoalName}`,
+                            size: '12pt',
+                          }),
+                        ],
+                      })
+                  ),
+                ],
+              }),
+            ],
+          })
+
+          return [dateRow, imageRow, feedbackRow, learningGoalsRow]
         })
+      )
 
-        const imageRow = new TableRow({
-          children: [
-            new TableCell({
-              rowSpan: 3,
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [
-                    new ImageRun({
-                      data: imageData,
-                      transformation: { width: 151, height: 151 },
-                      type: 'jpg',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-            new TableCell({
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: 'Deskripsi:', size: '12pt', bold: true })],
-                }),
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: anecdotal.description, size: '12pt' })],
-                }),
-              ],
-            }),
-          ],
-        })
+      const flattenedRows = rows.flat()
 
-        const feedbackRow = new TableRow({
-          children: [
-            new TableCell({
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: 'Umpan Balik:', size: '12pt', bold: true })],
-                }),
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: anecdotal.feedback, size: '12pt' })],
-                }),
-              ],
-            }),
-          ],
-        })
-
-        const learningGoalsRow = new TableRow({
-          children: [
-            new TableCell({
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [
-                    new TextRun({ text: 'Capaian Pembelajaran:', size: '12pt', bold: true }),
-                  ],
-                }),
-                ...anecdotal.learningGoals.map(
-                  (goal) =>
-                    new Paragraph({
-                      alignment: AlignmentType.JUSTIFIED,
-                      children: [
-                        new TextRun({
-                          text: `${goal.learningGoalCode} - ${goal.learningGoalName}`,
-                          size: '12pt',
-                        }),
-                      ],
-                    })
-                ),
-              ],
-            }),
-          ],
-        })
-
-        return [dateRow, imageRow, feedbackRow, learningGoalsRow]
+      return new Table({
+        rows: flattenedRows,
       })
-    )
-
-    const flattenedRows = rows.flat()
-
-    return new Table({
-      rows: flattenedRows,
-    })
+    } else {
+      return new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text: 'Belum ada asesmen anekdot', size: '12pt' })],
+      })
+    }
   }
 
   async createArtworkTable(artworks: ArtworkAssessment[]) {
-    const rows = await Promise.all(
-      artworks.map(async (artwork) => {
-        const imageData = await drive.use().getBytes(artwork.photoLink)
+    if (artworks.length > 0) {
+      const rows = await Promise.all(
+        artworks.map(async (artwork) => {
+          const imageData = await drive.use().getBytes(artwork.photoLink)
 
+          const dateRow = new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 2,
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: `Penilaian tanggal: ${artwork.createdAt.plus({ hours: 7 }).setLocale('id-ID').toFormat("dd LLLL yyyy 'pukul' HH:mm 'WIB'")}`,
+                        size: '12pt',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          })
+
+          const imageRow = new TableRow({
+            children: [
+              new TableCell({
+                rowSpan: 3,
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new ImageRun({
+                        data: imageData,
+                        transformation: { width: 151, height: 151 },
+                        type: 'jpg',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: 'Deskripsi:', size: '12pt', bold: true })],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: artwork.description, size: '12pt' })],
+                  }),
+                ],
+              }),
+            ],
+          })
+
+          const feedbackRow = new TableRow({
+            children: [
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: 'Umpan Balik:', size: '12pt', bold: true })],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: artwork.feedback, size: '12pt' })],
+                  }),
+                ],
+              }),
+            ],
+          })
+
+          const learningGoalsRow = new TableRow({
+            children: [
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [
+                      new TextRun({ text: 'Capaian Pembelajaran:', size: '12pt', bold: true }),
+                    ],
+                  }),
+                  ...artwork.learningGoals.map(
+                    (goal) =>
+                      new Paragraph({
+                        alignment: AlignmentType.JUSTIFIED,
+                        children: [
+                          new TextRun({
+                            text: `${goal.learningGoalCode} - ${goal.learningGoalName}`,
+                            size: '12pt',
+                          }),
+                        ],
+                      })
+                  ),
+                ],
+              }),
+            ],
+          })
+
+          return [dateRow, imageRow, feedbackRow, learningGoalsRow]
+        })
+      )
+
+      const flattenedRows = rows.flat()
+
+      return new Table({
+        rows: flattenedRows,
+      })
+    } else {
+      return new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text: 'Belum ada asesmen hasil karya', size: '12pt' })],
+      })
+    }
+  }
+
+  createChecklistTable(checklists: ChecklistAssessment[]) {
+    if (checklists.length > 0) {
+      const rows = checklists.map((checklist) => {
         const dateRow = new TableRow({
           children: [
             new TableCell({
-              columnSpan: 2,
+              columnSpan: 6,
               children: [
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: `Penilaian tanggal: ${artwork.createdAt.plus({ hours: 7 }).setLocale('id-ID').toFormat("dd LLLL yyyy 'pukul' HH:mm 'WIB'")}`,
+                      text: `Penilaian tanggal: ${checklist.createdAt.plus({ hours: 7 }).setLocale('id-ID').toFormat("dd LLLL yyyy 'pukul' HH:mm 'WIB'")}`,
                       size: '12pt',
                     }),
                   ],
@@ -336,452 +467,457 @@ export default class ReportPrintHistoryService {
           ],
         })
 
-        const imageRow = new TableRow({
+        const headerRow = new TableRow({
           children: [
             new TableCell({
-              rowSpan: 3,
-              verticalAlign: AlignmentType.CENTER,
+              rowSpan: 2,
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: 'No.', size: '12pt', bold: true })],
+                }),
+              ],
+            }),
+            new TableCell({
+              rowSpan: 2,
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: 'Konteks', size: '12pt', bold: true })],
+                }),
+              ],
+            }),
+            new TableCell({
+              rowSpan: 2,
               children: [
                 new Paragraph({
                   alignment: AlignmentType.CENTER,
                   children: [
-                    new ImageRun({
-                      data: imageData,
-                      transformation: { width: 151, height: 151 },
-                      type: 'jpg',
-                    }),
+                    new TextRun({ text: 'Kejadian yang Teramati', size: '12pt', bold: true }),
                   ],
                 }),
               ],
             }),
-            new TableCell({
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: 'Deskripsi:', size: '12pt', bold: true })],
-                }),
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: artwork.description, size: '12pt' })],
-                }),
-              ],
-            }),
-          ],
-        })
-
-        const feedbackRow = new TableRow({
-          children: [
-            new TableCell({
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: 'Umpan Balik:', size: '12pt', bold: true })],
-                }),
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: artwork.feedback, size: '12pt' })],
-                }),
-              ],
-            }),
-          ],
-        })
-
-        const learningGoalsRow = new TableRow({
-          children: [
-            new TableCell({
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [
-                    new TextRun({ text: 'Capaian Pembelajaran:', size: '12pt', bold: true }),
-                  ],
-                }),
-                ...artwork.learningGoals.map(
-                  (goal) =>
-                    new Paragraph({
-                      alignment: AlignmentType.JUSTIFIED,
-                      children: [
-                        new TextRun({
-                          text: `${goal.learningGoalCode} - ${goal.learningGoalName}`,
-                          size: '12pt',
-                        }),
-                      ],
-                    })
-                ),
-              ],
-            }),
-          ],
-        })
-
-        return [dateRow, imageRow, feedbackRow, learningGoalsRow]
-      })
-    )
-
-    const flattenedRows = rows.flat()
-
-    return new Table({
-      rows: flattenedRows,
-    })
-  }
-
-  createChecklistTable(checklists: ChecklistAssessment[]) {
-    const rows = checklists.map((checklist) => {
-      const dateRow = new TableRow({
-        children: [
-          new TableCell({
-            columnSpan: 6,
-            children: [
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: `Penilaian tanggal: ${checklist.createdAt.plus({ hours: 7 }).setLocale('id-ID').toFormat("dd LLLL yyyy 'pukul' HH:mm 'WIB'")}`,
-                    size: '12pt',
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      })
-
-      const headerRow = new TableRow({
-        children: [
-          new TableCell({
-            rowSpan: 2,
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [new TextRun({ text: 'No.', size: '12pt', bold: true })],
-              }),
-            ],
-          }),
-          new TableCell({
-            rowSpan: 2,
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [new TextRun({ text: 'Konteks', size: '12pt', bold: true })],
-              }),
-            ],
-          }),
-          new TableCell({
-            rowSpan: 2,
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({ text: 'Kejadian yang Teramati', size: '12pt', bold: true }),
-                ],
-              }),
-            ],
-          }),
-          new TableCell({
-            columnSpan: 2,
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [new TextRun({ text: 'Hasil Pengamatan', size: '12pt', bold: true })],
-              }),
-            ],
-          }),
-          new TableCell({
-            rowSpan: 2,
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [new TextRun({ text: 'Capaian Pembelajaran', size: '12pt', bold: true })],
-              }),
-            ],
-          }),
-        ],
-      })
-
-      const observatonResultRow = new TableRow({
-        children: [
-          new TableCell({
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [new TextRun({ text: 'Belum Muncul', size: '12pt', bold: true })],
-              }),
-            ],
-          }),
-          new TableCell({
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [new TextRun({ text: 'Sudah Muncul', size: '12pt', bold: true })],
-              }),
-            ],
-          }),
-        ],
-      })
-
-      const checklistPointRow = checklist.checklistPoints.map(
-        (point, index) =>
-          new TableRow({
-            children: [
-              new TableCell({
-                verticalAlign: AlignmentType.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: `${index + 1}`,
-                        size: '12pt',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                verticalAlign: AlignmentType.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.JUSTIFIED,
-                    children: [
-                      new TextRun({
-                        text: point.context,
-                        size: '12pt',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                verticalAlign: AlignmentType.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.JUSTIFIED,
-                    children: [
-                      new TextRun({
-                        text: point.observedEvent,
-                        size: '12pt',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                verticalAlign: AlignmentType.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: !point.hasAppeared ? '\u2713' : '',
-                        size: '16pt',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                verticalAlign: AlignmentType.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.CENTER,
-                    children: [
-                      new TextRun({
-                        text: point.hasAppeared ? '\u2713' : '',
-                        size: '16pt',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-              new TableCell({
-                verticalAlign: AlignmentType.CENTER,
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.JUSTIFIED,
-                    children: [
-                      new TextRun({
-                        text: `${point.learningGoal.learningGoalCode} - ${point.learningGoal.learningGoalName}`,
-                        size: '12pt',
-                      }),
-                    ],
-                  }),
-                ],
-              }),
-            ],
-          })
-      )
-
-      return [dateRow, headerRow, observatonResultRow, ...checklistPointRow]
-    })
-
-    const flattenedRows = rows.flat()
-
-    return new Table({
-      rows: flattenedRows,
-    })
-  }
-
-  async createSeriesPhotoTable(seriesPhotos: SeriesPhotoAssessment[]) {
-    const rows = await Promise.all(
-      seriesPhotos.map(async (seriesPhoto) => {
-        const dateRow = new TableRow({
-          children: [
             new TableCell({
               columnSpan: 2,
               children: [
                 new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: 'Hasil Pengamatan', size: '12pt', bold: true })],
+                }),
+              ],
+            }),
+            new TableCell({
+              rowSpan: 2,
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
                   children: [
-                    new TextRun({
-                      text: `Penilaian tanggal: ${seriesPhoto.createdAt.plus({ hours: 7 }).setLocale('id-ID').toFormat("dd LLLL yyyy 'pukul' HH:mm 'WIB'")}`,
-                      size: '12pt',
+                    new TextRun({ text: 'Capaian Pembelajaran', size: '12pt', bold: true }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        })
+
+        const observatonResultRow = new TableRow({
+          children: [
+            new TableCell({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: 'Belum Muncul', size: '12pt', bold: true })],
+                }),
+              ],
+            }),
+            new TableCell({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [new TextRun({ text: 'Sudah Muncul', size: '12pt', bold: true })],
+                }),
+              ],
+            }),
+          ],
+        })
+
+        const checklistPointRow = checklist.checklistPoints.map(
+          (point, index) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  verticalAlign: AlignmentType.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: `${index + 1}`,
+                          size: '12pt',
+                        }),
+                      ],
                     }),
                   ],
                 }),
-              ],
-            }),
-          ],
-        })
-
-        const imageRuns = await Promise.all(
-          seriesPhoto.seriesPhotos.map(async (photo) => {
-            const imageData = await drive.use().getBytes(photo.photoLink)
-            return new ImageRun({
-              data: imageData,
-              transformation: { width: 151, height: 151 },
-              type: 'jpg',
-            })
-          })
-        )
-
-        const imagesRow = new TableRow({
-          children: [
-            new TableCell({
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: imageRuns,
-                }),
-              ],
-            }),
-          ],
-        })
-
-        const descriptionRow = new TableRow({
-          children: [
-            new TableCell({
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: 'Deskripsi:', size: '12pt', bold: true })],
-                }),
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: seriesPhoto.description, size: '12pt' })],
-                }),
-              ],
-            }),
-          ],
-        })
-
-        const feedbackRow = new TableRow({
-          children: [
-            new TableCell({
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: 'Umpan Balik:', size: '12pt', bold: true })],
-                }),
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
-                  children: [new TextRun({ text: seriesPhoto.feedback, size: '12pt' })],
-                }),
-              ],
-            }),
-          ],
-        })
-
-        const learningGoalsRow = new TableRow({
-          children: [
-            new TableCell({
-              verticalAlign: AlignmentType.CENTER,
-              children: [
-                new Paragraph({
-                  alignment: AlignmentType.JUSTIFIED,
+                new TableCell({
+                  verticalAlign: AlignmentType.CENTER,
                   children: [
-                    new TextRun({ text: 'Capaian Pembelajaran:', size: '12pt', bold: true }),
-                  ],
-                }),
-                ...seriesPhoto.learningGoals.map(
-                  (goal) =>
                     new Paragraph({
                       alignment: AlignmentType.JUSTIFIED,
                       children: [
                         new TextRun({
-                          text: `${goal.learningGoalCode} - ${goal.learningGoalName}`,
+                          text: point.context,
                           size: '12pt',
                         }),
                       ],
-                    })
-                ),
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  verticalAlign: AlignmentType.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.JUSTIFIED,
+                      children: [
+                        new TextRun({
+                          text: point.observedEvent,
+                          size: '12pt',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  verticalAlign: AlignmentType.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: !point.hasAppeared ? '\u2713' : '',
+                          size: '16pt',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  verticalAlign: AlignmentType.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.CENTER,
+                      children: [
+                        new TextRun({
+                          text: point.hasAppeared ? '\u2713' : '',
+                          size: '16pt',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  verticalAlign: AlignmentType.CENTER,
+                  children: [
+                    new Paragraph({
+                      alignment: AlignmentType.JUSTIFIED,
+                      children: [
+                        new TextRun({
+                          text: `${point.learningGoal.learningGoalCode} - ${point.learningGoal.learningGoalName}`,
+                          size: '12pt',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            })
+        )
+
+        return [dateRow, headerRow, observatonResultRow, ...checklistPointRow]
+      })
+
+      const flattenedRows = rows.flat()
+
+      return new Table({
+        rows: flattenedRows,
+      })
+    } else {
+      return new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text: 'Belum ada asesmen ceklis', size: '12pt' })],
+      })
+    }
+  }
+
+  async createSeriesPhotoTable(seriesPhotos: SeriesPhotoAssessment[]) {
+    if (seriesPhotos.length > 0) {
+      const rows = await Promise.all(
+        seriesPhotos.map(async (seriesPhoto) => {
+          const dateRow = new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 2,
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: `Penilaian tanggal: ${seriesPhoto.createdAt.plus({ hours: 7 }).setLocale('id-ID').toFormat("dd LLLL yyyy 'pukul' HH:mm 'WIB'")}`,
+                        size: '12pt',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          })
+
+          const imageRuns = await Promise.all(
+            seriesPhoto.seriesPhotos.map(async (photo) => {
+              const imageData = await drive.use().getBytes(photo.photoLink)
+              return new ImageRun({
+                data: imageData,
+                transformation: { width: 151, height: 151 },
+                type: 'jpg',
+              })
+            })
+          )
+
+          const imagesRow = new TableRow({
+            children: [
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: imageRuns,
+                  }),
+                ],
+              }),
+            ],
+          })
+
+          const descriptionRow = new TableRow({
+            children: [
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: 'Deskripsi:', size: '12pt', bold: true })],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: seriesPhoto.description, size: '12pt' })],
+                  }),
+                ],
+              }),
+            ],
+          })
+
+          const feedbackRow = new TableRow({
+            children: [
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: 'Umpan Balik:', size: '12pt', bold: true })],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [new TextRun({ text: seriesPhoto.feedback, size: '12pt' })],
+                  }),
+                ],
+              }),
+            ],
+          })
+
+          const learningGoalsRow = new TableRow({
+            children: [
+              new TableCell({
+                verticalAlign: AlignmentType.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.JUSTIFIED,
+                    children: [
+                      new TextRun({ text: 'Capaian Pembelajaran:', size: '12pt', bold: true }),
+                    ],
+                  }),
+                  ...seriesPhoto.learningGoals.map(
+                    (goal) =>
+                      new Paragraph({
+                        alignment: AlignmentType.JUSTIFIED,
+                        children: [
+                          new TextRun({
+                            text: `${goal.learningGoalCode} - ${goal.learningGoalName}`,
+                            size: '12pt',
+                          }),
+                        ],
+                      })
+                  ),
+                ],
+              }),
+            ],
+          })
+
+          return [dateRow, imagesRow, descriptionRow, feedbackRow, learningGoalsRow]
+        })
+      )
+
+      const flattenedRows = rows.flat()
+
+      return new Table({
+        rows: flattenedRows,
+      })
+    } else {
+      return new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text: 'Belum ada asesmen foto berseri', size: '12pt' })],
+      })
+    }
+  }
+
+  createSignatureTable(signatureDate: string, teacherName: string, className: string) {
+    return new Table({
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph('')],
+            }),
+            new TableCell({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.RIGHT,
+                  children: [
+                    new TextRun({ text: `Semarang, ${signatureDate}`, bold: true, size: '12pt' }),
+                  ],
+                }),
               ],
             }),
           ],
-        })
-
-        return [dateRow, imagesRow, descriptionRow, feedbackRow, learningGoalsRow]
-      })
-    )
-
-    const flattenedRows = rows.flat()
-
-    return new Table({
-      rows: flattenedRows,
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.LEFT,
+                  children: [new TextRun({ text: 'Orang Tua/Murid', size: '12pt' })],
+                }),
+              ],
+            }),
+            new TableCell({
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.RIGHT,
+                  children: [new TextRun({ text: `Wali Kelas ${className}`, size: '12pt' })],
+                }),
+              ],
+            }),
+          ],
+        }),
+        ...[2, 3, 4, 5, 6].map(
+          () =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph('')],
+                }),
+                new TableCell({
+                  children: [new Paragraph('')],
+                }),
+              ],
+            })
+        ),
+        new TableRow({
+          children: [
+            new TableCell({
+              borders: {
+                top: { style: BorderStyle.NONE },
+                bottom: { style: BorderStyle.NONE },
+                left: { style: BorderStyle.NONE },
+                right: { style: BorderStyle.NONE },
+              },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.LEFT,
+                  children: [new TextRun({ text: '........................', size: '12pt' })],
+                }),
+              ],
+            }),
+            new TableCell({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.RIGHT,
+                  children: [new TextRun({ text: `${teacherName}`, size: '12pt' })],
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+      width: {
+        size: 100,
+        type: WidthType.PERCENTAGE,
+      },
+      borders: {
+        top: { style: BorderStyle.NONE },
+        bottom: { style: BorderStyle.NONE },
+        left: { style: BorderStyle.NONE },
+        right: { style: BorderStyle.NONE },
+        insideVertical: { style: BorderStyle.NONE },
+        insideHorizontal: { style: BorderStyle.NONE },
+      },
     })
   }
 
   async printReport(
     studentId: number,
+    user: User,
     startDate = DateTime.now().minus({ days: 30 }).toFormat('yyyy-LL-dd'),
     endDate = DateTime.now().toFormat('yyyy-LL-dd')
   ) {
-    const [student, anecdotals, artworks, checklists, seriesPhotos] = await Promise.all([
-      this.studentService.getStudentInfo(studentId),
-      this.anecdotalService.getAllAssessments(studentId, {
-        usePagination: false,
-        sortOrder: 'asc',
-        startDate: startDate,
-        endDate: endDate,
-      }),
-      this.artworkService.getAllAssessments(studentId, {
-        usePagination: false,
-        sortOrder: 'asc',
-        startDate: startDate,
-        endDate: endDate,
-      }),
-      this.checklistService.getAllAssessments(studentId, {
-        usePagination: false,
-        sortOrder: 'asc',
-        startDate: startDate,
-        endDate: endDate,
-      }),
-      this.seriesPhotoService.getAllAssessments(studentId, {
-        usePagination: false,
-        sortOrder: 'asc',
-        startDate: startDate,
-        endDate: endDate,
-      }),
-    ])
+    const [teacher, schoolSemester, student, anecdotals, artworks, checklists, seriesPhotos] =
+      await Promise.all([
+        this.teacherService.getTeacherInfo(user),
+        this.reportInfoService.getSemesterInfo(),
+        this.studentService.getStudentInfo(studentId),
+        this.anecdotalService.getAllAssessments(studentId, {
+          usePagination: false,
+          sortOrder: 'asc',
+          startDate: startDate,
+          endDate: endDate,
+        }),
+        this.artworkService.getAllAssessments(studentId, {
+          usePagination: false,
+          sortOrder: 'asc',
+          startDate: startDate,
+          endDate: endDate,
+        }),
+        this.checklistService.getAllAssessments(studentId, {
+          usePagination: false,
+          sortOrder: 'asc',
+          startDate: startDate,
+          endDate: endDate,
+        }),
+        this.seriesPhotoService.getAllAssessments(studentId, {
+          usePagination: false,
+          sortOrder: 'asc',
+          startDate: startDate,
+          endDate: endDate,
+        }),
+      ])
 
     const formattedStartDate = DateTime.fromFormat(startDate, 'yyyy-LL-dd')
       .setLocale('id-ID')
-      .toFormat('dd LLLL yyyy')
+      .toFormat('d LLLL yyyy')
     const formattedEndDate = DateTime.fromFormat(endDate, 'yyyy-LL-dd')
       .setLocale('id-ID')
-      .toFormat('dd LLLL yyyy')
+      .toFormat('d LLLL yyyy')
 
     const doc = new Document({
       sections: [
@@ -800,25 +936,14 @@ export default class ReportPrintHistoryService {
                 new Paragraph({
                   alignment: AlignmentType.CENTER,
                   children: [
-                    new TextRun({ text: 'LAPORAN PENILAIAN MURID', size: '12pt' }),
+                    new TextRun({ text: 'PAUD Ainun Habibie', size: '12pt' }),
                     new TextRun({
                       size: '12pt',
                       children: [
-                        ' - Halaman ',
-                        PageNumber.CURRENT,
-                        ' dari ',
-                        PageNumber.TOTAL_PAGES,
+                        ' - Semester ',
+                        schoolSemester.isEvenSemester ? 'Genap' : 'Ganjil',
+                        ` Tahun Ajaran ${schoolSemester.startYear}/${schoolSemester.endYear}`,
                       ],
-                    }),
-                  ],
-                }),
-                new Paragraph({
-                  alignment: AlignmentType.CENTER,
-                  children: [
-                    new TextRun({ text: 'Rentang', size: '12pt' }),
-                    new TextRun({
-                      size: '12pt',
-                      children: [` ${formattedStartDate} hingga ${formattedEndDate}`],
                     }),
                   ],
                 }),
@@ -832,7 +957,7 @@ export default class ReportPrintHistoryService {
                   alignment: AlignmentType.CENTER,
                   children: [
                     new TextRun({
-                      text: 'PAUD AINUN HABIBIE | Laporan dicetak secara otomatis',
+                      text: 'PAUD Ainun Habibie | Laporan dicetak secara otomatis',
                       size: '12pt',
                     }),
                     new TextRun({
@@ -850,6 +975,33 @@ export default class ReportPrintHistoryService {
             }),
           },
           children: [
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({
+                  text: 'Laporan Pembelajaran Periodik Siswa',
+                  bold: true,
+                  size: '14pt',
+                }),
+              ],
+            }),
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({ text: 'Rentang', size: '14pt', bold: true }),
+                new TextRun({
+                  size: '14pt',
+                  bold: true,
+                  children: [` ${formattedStartDate} hingga ${formattedEndDate}`],
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [new TextRun('\n')],
+            }),
+            new Paragraph({
+              children: [new TextRun('\n')],
+            }),
             await this.createInfoTable(student),
             new Paragraph({
               children: [new TextRun('\n')],
@@ -898,6 +1050,13 @@ export default class ReportPrintHistoryService {
             new Paragraph({
               children: [new TextRun('\n')],
             }),
+            new Paragraph({
+              children: [new TextRun('\n')],
+            }),
+            new Paragraph({
+              children: [new TextRun('\n')],
+            }),
+            this.createSignatureTable(formattedEndDate, teacher!.name, student.class),
           ],
         },
       ],
