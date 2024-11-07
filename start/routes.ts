@@ -103,7 +103,7 @@ router
 
     router.get('/students/:id/reports', [ReportPrintHistoriesController, 'indexReport'])
     router.get('/students/:id/reports/:reportId', [ReportPrintHistoriesController, 'showReport'])
-    router.post('/students/:id/create-report', [
+    router.post('/students/:id/reports/create-report', [
       ReportPrintHistoriesController,
       'createAndDownloadReport',
     ])
