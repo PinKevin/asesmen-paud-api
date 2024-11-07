@@ -26,6 +26,14 @@ export default class ReportPrintHistoriesController {
     const endDate = request.input('end-date') ?? DateTime.now().toFormat('yyyy-LL-dd')
 
     try {
+      const existReport = await ReportPrintHistory.query()
+        .where('startReportDate', startDate)
+        .andWhere('endReportDate', endDate)
+        .first()
+      if (existReport) {
+        throw new Error('Laporan bulan tersebut sudah dibuat.', { cause: 'already-exists' })
+      }
+
       const disk = drive.use()
       const user = await this.authService.getUserFromAuth(auth)
 
@@ -50,10 +58,10 @@ export default class ReportPrintHistoriesController {
       response.header('Content-Disposition', `attachment; filename=${fileName}`)
       return response.send(buffer)
     } catch (error) {
-      return this.responseService.failResponse(
-        response,
-        'Error saat membuat laporan' + error.message
-      )
+      if (error.cause === 'already-exists') {
+        return this.responseService.failResponse(response, error.message)
+      }
+      return this.responseService.errorResponse(response, 'Error saat membuat laporan')
     }
   }
 
