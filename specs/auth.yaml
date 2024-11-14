@@ -1,0 +1,152 @@
+openapi: 3.0.0
+info:
+  title: Authentication API
+  version: 1.0.0
+  description: API untuk proses autentikasi user, termasuk login, logout, dan pengecekan token.
+paths:
+  /sign-in:
+    post:
+      summary: Sign in
+      description: Sign in untuk mendapatkan token autentikasi.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email pengguna yang terdaftar.
+                password:
+                  type: string
+                  format: password
+                  description: Password pengguna.
+            example:
+              email: user@example.com
+              password: password123
+      responses:
+        '200':
+          description: Berhasil login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Anda berhasil login
+                  token:
+                    type: string
+                    description: Token autentikasi yang diperoleh setelah login.
+        '400':
+          description: Gagal login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  error:
+                    type: string
+              examples:
+                pending_account:
+                  value:
+                    status: fail
+                    message: "Akun Anda belum aktif"
+                invalid_credentials:
+                  value:
+                    status: fail
+                    message: "Email atau password salah"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Terjadi kesalahan
+
+  /sign-out:
+    post:
+      summary: Sign out
+      description: Menghapus token autentikasi yang aktif.
+      responses:
+        '200':
+          description: Berhasil logout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Anda berhasil keluar
+        '400':
+          description: Gagal logout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token tidak valid atau telah kadaluarsa
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Terjadi kesalahan
+
+  /check-token:
+    get:
+      summary: Check Authentication
+      description: Mengecek validitas token autentikasi.
+      responses:
+        '200':
+          description: Token valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token login user valid
+        '400':
+          description: Token tidak valid atau kadaluarsa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token kadaluarsa
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Terjadi kesalahan

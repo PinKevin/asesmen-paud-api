@@ -46,9 +46,11 @@
     "@swc/core": "^1.7.22",
     "@types/luxon": "^3.4.2",
     "@types/node": "^22.5.1",
+    "@types/pluralize": "^0.0.33",
     "eslint": "^9.9.1",
     "hot-hook": "^0.3.0",
     "pino-pretty": "^11.2.2",
+    "pluralize": "^8.0.0",
     "prettier": "^3.3.3",
     "ts-node-maintained": "^10.9.4",
     "typescript": "~5.5"
