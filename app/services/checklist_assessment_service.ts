@@ -2,12 +2,11 @@ import { CreateChecklistDto, EditChecklistDto } from '#dto/checklist_dto'
 import { GetAllAssessmentsOptions } from '#dto/get_all_options'
 import ChecklistAssessment from '#models/checklist_assessment'
 import ChecklistPoint from '#models/checklist_point'
-import Student from '#models/student'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 
 export default class ChecklistAssessmentService {
-  async getAllAssessments(id: number, options: GetAllAssessmentsOptions = {}) {
+  async getAllAssessments(studentId: number, options: GetAllAssessmentsOptions = {}) {
     const {
       page = 1,
       limit = 10,
@@ -17,13 +16,11 @@ export default class ChecklistAssessmentService {
       usePagination = true,
     } = options
 
-    const student = await Student.findOrFail(id)
-
     const startDateTime = DateTime.fromISO(startDate).set({ hour: 0, minute: 0, second: 0 }).toSQL()
     const endDateTime = DateTime.fromISO(endDate).set({ hour: 23, minute: 59, second: 59 }).toSQL()
 
     const checklistsQuery = ChecklistAssessment.query()
-      .where('student_id', student.id)
+      .where('student_id', studentId)
       .whereBetween('created_at', [startDateTime!, endDateTime!])
       .preload('checklistPoints', (query) => {
         query.preload('learningGoal')
@@ -43,7 +40,7 @@ export default class ChecklistAssessmentService {
     try {
       const checklist = await ChecklistAssessment.create(
         {
-          studentId: studentId,
+          studentId,
         },
         { client: trx }
       )
@@ -69,11 +66,9 @@ export default class ChecklistAssessmentService {
     }
   }
 
-  async getDetailAssessment(id: number, assessmentId: number) {
-    const student = await Student.findOrFail(id)
-
+  async getDetailAssessment(studentId: number, assessmentId: number) {
     const checklist = await ChecklistAssessment.query()
-      .where('student_id', student.id)
+      .where('student_id', studentId)
       .where('id', assessmentId)
       .preload('checklistPoints', (query) => {
         query.preload('learningGoal')
@@ -83,11 +78,13 @@ export default class ChecklistAssessmentService {
     return checklist
   }
 
-  async updateAssessment(id: number, assessmentId: number, { checklistPoints }: EditChecklistDto) {
-    const student = await Student.findOrFail(id)
-
+  async updateAssessment(
+    studentId: number,
+    assessmentId: number,
+    { checklistPoints }: EditChecklistDto
+  ) {
     const checklist = await ChecklistAssessment.query()
-      .where('student_id', student.id)
+      .where('student_id', studentId)
       .where('id', assessmentId)
       .preload('checklistPoints')
       .firstOrFail()
@@ -125,11 +122,9 @@ export default class ChecklistAssessmentService {
     }
   }
 
-  async deleteAssessment(id: number, assessmentId: number) {
-    const student = await Student.findOrFail(id)
-
+  async deleteAssessment(studentId: number, assessmentId: number) {
     const checklist = await ChecklistAssessment.query()
-      .where('student_id', student.id)
+      .where('student_id', studentId)
       .where('id', assessmentId)
       .preload('checklistPoints')
       .firstOrFail()

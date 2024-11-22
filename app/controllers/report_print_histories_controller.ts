@@ -21,12 +21,14 @@ export default class ReportPrintHistoriesController {
   async createAndDownloadReport({ auth, request, response }: HttpContext) {
     const studentId = request.param('id')
 
+    const currentDate = DateTime.now()
     const startDate =
-      request.input('start-date') ?? DateTime.now().minus({ days: 30 }).toFormat('yyyy-LL-dd')
-    const endDate = request.input('end-date') ?? DateTime.now().toFormat('yyyy-LL-dd')
+      request.input('start-date') ?? currentDate.startOf('month').toFormat('yyyy-LL-dd')
+    const endDate = request.input('end-date') ?? currentDate.endOf('month').toFormat('yyyy-LL-dd')
 
     try {
       const existReport = await ReportPrintHistory.query()
+        .where('studentId', studentId)
         .where('startReportDate', startDate)
         .andWhere('endReportDate', endDate)
         .first()

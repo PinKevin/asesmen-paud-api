@@ -1,14 +1,13 @@
 import { CreateAnecdotalDto, EditAnecdotalDto } from '#dto/anecdotal_dto'
 import { GetAllAssessmentsOptions } from '#dto/get_all_options'
 import AnecdotalAssessment from '#models/anecdotal_assessment'
-import Student from '#models/student'
 import { cuid } from '@adonisjs/core/helpers'
 import drive from '@adonisjs/drive/services/main'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 
 export default class AnecdotalAssessmentService {
-  async getAllAssessments(id: number, options: GetAllAssessmentsOptions = {}) {
+  async getAllAssessments(studentId: number, options: GetAllAssessmentsOptions = {}) {
     const {
       page = 1,
       limit = 10,
@@ -18,13 +17,11 @@ export default class AnecdotalAssessmentService {
       usePagination = true,
     } = options
 
-    const student = await Student.findOrFail(id)
-
     const startDateTime = DateTime.fromISO(startDate).set({ hour: 0, minute: 0, second: 0 }).toSQL()
     const endDateTime = DateTime.fromISO(endDate).set({ hour: 23, minute: 59, second: 59 }).toSQL()
 
     const anecdotalsQuery = AnecdotalAssessment.query()
-      .where('student_id', student.id)
+      .where('student_id', studentId)
       .whereBetween('created_at', [startDateTime!, endDateTime!])
       .preload('learningGoals')
       .orderBy('created_at', sortOrder)
@@ -72,11 +69,9 @@ export default class AnecdotalAssessmentService {
     }
   }
 
-  async getDetailAssessment(id: number, assessmentId: number) {
-    const student = await Student.findOrFail(id)
-
+  async getDetailAssessment(studentId: number, assessmentId: number) {
     const anecdotal = await AnecdotalAssessment.query()
-      .where('student_id', student.id)
+      .where('student_id', studentId)
       .where('id', assessmentId)
       .preload('learningGoals')
       .firstOrFail()
@@ -85,14 +80,12 @@ export default class AnecdotalAssessmentService {
   }
 
   async updateAssessment(
-    id: number,
+    studentId: number,
     assessmentId: number,
     { photo, description, feedback, learningGoals }: EditAnecdotalDto
   ) {
-    const student = await Student.findOrFail(id)
-
     const anecdotal = await AnecdotalAssessment.query()
-      .where('student_id', student.id)
+      .where('student_id', studentId)
       .where('id', assessmentId)
       .preload('learningGoals')
       .firstOrFail()
@@ -114,7 +107,7 @@ export default class AnecdotalAssessmentService {
           photoLink: fileName,
           description: description ?? anecdotal.description,
           feedback: feedback ?? anecdotal.feedback,
-          studentId: id,
+          studentId: studentId,
         })
         .useTransaction(trx)
         .save()
@@ -134,11 +127,9 @@ export default class AnecdotalAssessmentService {
     }
   }
 
-  async deleteAssessment(id: number, assessmentId: number) {
-    const student = await Student.findOrFail(id)
-
+  async deleteAssessment(studentId: number, assessmentId: number) {
     const anecdotal = await AnecdotalAssessment.query()
-      .where('student_id', student.id)
+      .where('student_id', studentId)
       .where('id', assessmentId)
       .preload('learningGoals')
       .firstOrFail()

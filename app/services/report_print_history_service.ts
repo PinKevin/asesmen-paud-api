@@ -878,8 +878,8 @@ export default class ReportPrintHistoryService {
   async printReport(
     studentId: number,
     user: User,
-    startDate = DateTime.now().minus({ days: 30 }).toFormat('yyyy-LL-dd'),
-    endDate = DateTime.now().toFormat('yyyy-LL-dd')
+    startDate = DateTime.now().startOf('month').toFormat('yyyy-LL-dd'),
+    endDate = DateTime.now().endOf('month').toFormat('yyyy-LL-dd')
   ) {
     const [teacher, schoolSemester, student, anecdotals, artworks, checklists, seriesPhotos] =
       await Promise.all([
