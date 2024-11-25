@@ -35,7 +35,7 @@ export default class StudentService {
 
       if (searchQuery) {
         studentQuery
-          .whereLike('students.name', `%${searchQuery}%`)
+          .whereRaw('LOWER(students.name) LIKE ?', [`%${searchQuery.toLowerCase()}%`])
           .orWhereLike('students.nisn', `%${searchQuery}%`)
       }
 
