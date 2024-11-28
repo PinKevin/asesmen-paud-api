@@ -5,7 +5,7 @@ export const updateAnecdotalValidation = vine.compile(
     photo: vine
       .file({
         size: '5mb',
-        extnames: ['jpg', 'png'],
+        extnames: ['jpg', 'png', 'jpeg'],
       })
       .optional(),
     description: vine.string().trim().optional(),

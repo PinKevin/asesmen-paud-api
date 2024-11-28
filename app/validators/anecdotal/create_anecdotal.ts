@@ -4,7 +4,7 @@ export const createAnecdotalValidatoion = vine.compile(
   vine.object({
     photo: vine.file({
       size: '5mb',
-      extnames: ['jpg', 'png'],
+      extnames: ['jpg', 'png', 'jpeg'],
     }),
     description: vine.string().trim(),
     feedback: vine.string().trim(),

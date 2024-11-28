@@ -22,8 +22,8 @@ export default class ReportInfoService {
     const {
       page = 1,
       limit = 10,
-      startDate = DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
-      endDate = DateTime.now().toFormat('yyyy-LL-dd'),
+      startDate = DateTime.now().startOf('year').toFormat('yyyy-LL-dd'),
+      endDate = DateTime.now().endOf('year').toFormat('yyyy-LL-dd'),
       sortOrder = 'desc',
       usePagination = true,
     } = options
@@ -33,7 +33,8 @@ export default class ReportInfoService {
 
     const reportsQuery = ReportPrintHistory.query()
       .where('studentId', studentId)
-      .whereBetween('created_at', [startDateTime!, endDateTime!])
+      .whereBetween('startReportDate', [startDateTime!, endDateTime!])
+      .whereBetween('endReportDate', [startDateTime!, endDateTime!])
       .orderBy('created_at', sortOrder)
 
     const reports = usePagination ? await reportsQuery.paginate(page, limit) : await reportsQuery
