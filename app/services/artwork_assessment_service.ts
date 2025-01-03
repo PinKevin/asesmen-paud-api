@@ -100,20 +100,21 @@ export default class ArtworkAssessmentService {
         await photo.moveToDisk(fileName)
       }
 
-      artwork
-        .merge({
-          photoLink: fileName,
-          description: description ?? artwork.description,
-          feedback: feedback ?? artwork.feedback,
-          studentId,
-        })
-        .useTransaction(trx)
-        .save()
+      artwork.merge({
+        photoLink: fileName,
+        description: description ?? artwork.description,
+        feedback: feedback ?? artwork.feedback,
+        studentId,
+      })
 
       if (learningGoals && learningGoals.length) {
         await artwork.related('learningGoals').detach([], trx)
         await artwork.related('learningGoals').attach(learningGoals, trx)
+
+        artwork.updatedAt = DateTime.now()
       }
+
+      await artwork.useTransaction(trx).save()
 
       await trx.commit()
 

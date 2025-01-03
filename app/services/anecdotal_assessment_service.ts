@@ -1,7 +1,6 @@
 import { CreateAnecdotalDto, EditAnecdotalDto } from '#dto/anecdotal_dto'
 import { GetAllAssessmentsOptions } from '#dto/get_all_options'
 import AnecdotalAssessment from '#models/anecdotal_assessment'
-import { cuid } from '@adonisjs/core/helpers'
 import drive from '@adonisjs/drive/services/main'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
@@ -34,7 +33,7 @@ export default class AnecdotalAssessmentService {
   }
 
   async addAssessment({
-    photo,
+    photoLink,
     description,
     feedback,
     studentId,
@@ -43,12 +42,9 @@ export default class AnecdotalAssessmentService {
     const trx = await db.transaction()
 
     try {
-      const fileName = `${cuid()}.${photo.extname}`
-      await photo.moveToDisk(fileName)
-
       const assessments = await AnecdotalAssessment.create(
         {
-          photoLink: fileName,
+          photoLink,
           description,
           feedback,
           studentId,
@@ -82,7 +78,7 @@ export default class AnecdotalAssessmentService {
   async updateAssessment(
     studentId: number,
     assessmentId: number,
-    { photo, description, feedback, learningGoals }: EditAnecdotalDto
+    { photoLink, description, feedback, learningGoals }: EditAnecdotalDto
   ) {
     const anecdotal = await AnecdotalAssessment.query()
       .where('student_id', studentId)
@@ -95,27 +91,29 @@ export default class AnecdotalAssessmentService {
 
     try {
       let fileName = anecdotal.photoLink
-      if (photo) {
-        await disk.delete(fileName)
+      if (photoLink && photoLink !== anecdotal.photoLink) {
+        if (fileName) {
+          await disk.delete(fileName)
+        }
 
-        fileName = `${cuid()}.${photo.extname}`
-        await photo.moveToDisk(fileName)
+        fileName = photoLink
       }
 
-      anecdotal
-        .merge({
-          photoLink: fileName,
-          description: description ?? anecdotal.description,
-          feedback: feedback ?? anecdotal.feedback,
-          studentId: studentId,
-        })
-        .useTransaction(trx)
-        .save()
+      anecdotal.merge({
+        photoLink: fileName,
+        description: description ?? anecdotal.description,
+        feedback: feedback ?? anecdotal.feedback,
+        studentId: studentId,
+      })
 
       if (learningGoals && learningGoals.length) {
         await anecdotal.related('learningGoals').detach([], trx)
         await anecdotal.related('learningGoals').attach(learningGoals, trx)
+
+        anecdotal.updatedAt = DateTime.now()
       }
+
+      await anecdotal.useTransaction(trx).save()
 
       await trx.commit()
 

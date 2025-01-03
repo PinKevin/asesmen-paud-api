@@ -9,6 +9,7 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const FilesController = () => import('#controllers/files_controller')
 const ReportPrintHistoriesController = () =>
   import('#controllers/report_print_histories_controller')
 const SeriesPhotoAssessmentsController = () =>
@@ -61,6 +62,8 @@ router
       'getSubLearningScopeById',
     ])
     router.get('/learning-goal-by-id/:id', [LearningGoalsController, 'getLearningGoalById'])
+
+    router.post('/upload-photo', [FilesController, 'uploadPhoto'])
 
     router.get('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'index'])
     router.post('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'store'])
