@@ -5,7 +5,7 @@ import SubLearningScope from '#models/sub_learning_scope'
 
 export default class LearningGoalService {
   async getCompetencies() {
-    const competencies = await Competency.all()
+    const competencies = await Competency.query().orderBy('id', 'asc')
     return competencies
   }
 

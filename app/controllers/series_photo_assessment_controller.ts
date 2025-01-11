@@ -49,10 +49,10 @@ export default class SeriesPhotoAssessmentsController {
 
     const data = {
       studentId,
-      photos: payload.photos,
       description: payload.description,
       feedback: payload.feedback,
       learningGoals: payload.learningGoals,
+      photoLinks: payload.photoLinks,
     }
 
     try {
