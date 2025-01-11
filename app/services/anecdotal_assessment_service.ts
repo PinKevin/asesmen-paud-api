@@ -1,5 +1,9 @@
 import { CreateAnecdotalDto, EditAnecdotalDto } from '#dto/anecdotal_dto'
-import { GetAllAssessmentsOptions } from '#dto/get_all_options'
+import {
+  defaultGetAllAssessmentsOptions,
+  GetAllAssessmentsOptions,
+  getDateTimeRange,
+} from '#dto/get_all_options'
 import AnecdotalAssessment from '#models/anecdotal_assessment'
 import drive from '@adonisjs/drive/services/main'
 import db from '@adonisjs/lucid/services/db'
@@ -7,17 +11,12 @@ import { DateTime } from 'luxon'
 
 export default class AnecdotalAssessmentService {
   async getAllAssessments(studentId: number, options: GetAllAssessmentsOptions = {}) {
-    const {
-      page = 1,
-      limit = 10,
-      startDate = DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
-      endDate = DateTime.now().toFormat('yyyy-LL-dd'),
-      sortOrder = 'desc',
-      usePagination = true,
-    } = options
+    const { page, limit, sortOrder, usePagination } = {
+      ...defaultGetAllAssessmentsOptions,
+      ...options,
+    }
 
-    const startDateTime = DateTime.fromISO(startDate).set({ hour: 0, minute: 0, second: 0 }).toSQL()
-    const endDateTime = DateTime.fromISO(endDate).set({ hour: 23, minute: 59, second: 59 }).toSQL()
+    const { startDateTime, endDateTime } = getDateTimeRange(options)
 
     const anecdotalsQuery = AnecdotalAssessment.query()
       .where('student_id', studentId)
@@ -103,7 +102,7 @@ export default class AnecdotalAssessmentService {
         photoLink: fileName,
         description: description ?? anecdotal.description,
         feedback: feedback ?? anecdotal.feedback,
-        studentId: studentId,
+        studentId,
       })
 
       if (learningGoals && learningGoals.length) {

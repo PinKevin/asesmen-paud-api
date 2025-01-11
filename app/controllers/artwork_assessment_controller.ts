@@ -49,7 +49,7 @@ export default class ArtworkAssessmentsController {
 
     const data = {
       studentId,
-      photo: payload.photo,
+      photoLink: payload.photoLink,
       description: payload.description,
       feedback: payload.feedback,
       learningGoals: payload.learningGoals,

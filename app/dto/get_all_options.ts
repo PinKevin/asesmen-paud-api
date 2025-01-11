@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon'
+
 export interface GetAllAssessmentsOptions {
   page?: number
   limit?: number
@@ -5,4 +7,23 @@ export interface GetAllAssessmentsOptions {
   endDate?: string
   sortOrder?: 'asc' | 'desc'
   usePagination?: boolean
+}
+
+export const defaultGetAllAssessmentsOptions = {
+  page: 1,
+  limit: 10,
+  startDate: DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
+  endDate: DateTime.now().toFormat('yyyy-LL-dd'),
+  sortOrder: 'desc' as 'asc' | 'desc',
+  usePagination: true,
+}
+
+export function getDateTimeRange(options: GetAllAssessmentsOptions) {
+  const startDate = options.startDate || defaultGetAllAssessmentsOptions.startDate
+  const endDate = options.endDate || defaultGetAllAssessmentsOptions.endDate
+
+  const startDateTime = DateTime.fromISO(startDate).set({ hour: 0, minute: 0, second: 0 }).toSQL()
+  const endDateTime = DateTime.fromISO(endDate).set({ hour: 23, minute: 59, second: 59 }).toSQL()
+
+  return { startDateTime, endDateTime }
 }

@@ -1,7 +1,5 @@
-import { MultipartFile } from '@adonisjs/core/types/bodyparser'
-
 export interface CreateArtworkDto {
-  photo: MultipartFile
+  photoLink: string
   description: string
   feedback: string
   studentId: number
@@ -9,7 +7,7 @@ export interface CreateArtworkDto {
 }
 
 export interface EditArtworkDto {
-  photo?: MultipartFile
+  photoLink?: string
   description?: string
   feedback?: string
   studentId?: number

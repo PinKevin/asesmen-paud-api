@@ -1,24 +1,22 @@
 import { CreateArtworkDto, EditArtworkDto } from '#dto/artwork_dto'
-import { GetAllAssessmentsOptions } from '#dto/get_all_options'
+import {
+  defaultGetAllAssessmentsOptions,
+  GetAllAssessmentsOptions,
+  getDateTimeRange,
+} from '#dto/get_all_options'
 import ArtworkAssessment from '#models/artwork_assessment'
-import { cuid } from '@adonisjs/core/helpers'
 import drive from '@adonisjs/drive/services/main'
 import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 
 export default class ArtworkAssessmentService {
   async getAllAssessments(studentId: number, options: GetAllAssessmentsOptions = {}) {
-    const {
-      page = 1,
-      limit = 10,
-      startDate = DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
-      endDate = DateTime.now().toFormat('yyyy-LL-dd'),
-      sortOrder = 'desc',
-      usePagination = true,
-    } = options
+    const { page, limit, sortOrder, usePagination } = {
+      ...defaultGetAllAssessmentsOptions,
+      ...options,
+    }
 
-    const startDateTime = DateTime.fromISO(startDate).set({ hour: 0, minute: 0, second: 0 }).toSQL()
-    const endDateTime = DateTime.fromISO(endDate).set({ hour: 23, minute: 59, second: 59 }).toSQL()
+    const { startDateTime, endDateTime } = getDateTimeRange(options)
 
     const artworksQuery = ArtworkAssessment.query()
       .where('student_id', studentId)
@@ -32,7 +30,7 @@ export default class ArtworkAssessmentService {
   }
 
   async addAssessment({
-    photo,
+    photoLink,
     description,
     feedback,
     studentId,
@@ -41,12 +39,9 @@ export default class ArtworkAssessmentService {
     const trx = await db.transaction()
 
     try {
-      const fileName = `${cuid()}.${photo.extname}`
-      await photo.moveToDisk(fileName)
-
       const artwork = await ArtworkAssessment.create(
         {
-          photoLink: fileName,
+          photoLink,
           description,
           feedback,
           studentId,
@@ -80,7 +75,7 @@ export default class ArtworkAssessmentService {
   async updateAssessment(
     studentId: number,
     assessmentId: number,
-    { photo, description, feedback, learningGoals }: EditArtworkDto
+    { photoLink, description, feedback, learningGoals }: EditArtworkDto
   ) {
     const artwork = await ArtworkAssessment.query()
       .where('student_id', studentId)
@@ -93,11 +88,12 @@ export default class ArtworkAssessmentService {
 
     try {
       let fileName = artwork.photoLink
-      if (photo) {
-        await disk.delete(fileName)
+      if (photoLink && photoLink !== artwork.photoLink) {
+        if (fileName) {
+          await disk.delete(fileName)
+        }
 
-        fileName = `${cuid()}.${photo.extname}`
-        await photo.moveToDisk(fileName)
+        fileName = photoLink
       }
 
       artwork.merge({
