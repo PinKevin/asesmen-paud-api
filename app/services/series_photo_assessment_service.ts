@@ -1,15 +1,14 @@
 import { CreateSeriesPhotoDto, EditSeriesPhotoDto } from '#dto/photo_series_dto'
 import SeriesPhotoAssessment from '#models/series_photo_assessment'
 import SeriesPhoto from '#models/series_photo'
-import { cuid } from '@adonisjs/core/helpers'
 import db from '@adonisjs/lucid/services/db'
-// import { DateTime } from 'luxon'
 import drive from '@adonisjs/drive/services/main'
 import {
   defaultGetAllAssessmentsOptions,
   GetAllAssessmentsOptions,
   getDateTimeRange,
 } from '#dto/get_all_options'
+import { DateTime } from 'luxon'
 
 export default class SeriesPhotoAssessmentService {
   async getAllAssessments(studentId: number, options: GetAllAssessmentsOptions = {}) {
@@ -39,15 +38,11 @@ export default class SeriesPhotoAssessmentService {
     feedback,
     studentId,
     learningGoals,
-    photos,
+    photoLinks,
   }: CreateSeriesPhotoDto) {
     const trx = await db.transaction()
 
     try {
-      if (photos.length < 3 || photos.length > 5) {
-        throw new Error('unggah 3-5 foto')
-      }
-
       const seriesPhoto = await SeriesPhotoAssessment.create(
         {
           studentId,
@@ -57,17 +52,9 @@ export default class SeriesPhotoAssessmentService {
         { client: trx }
       )
 
-      const photoPaths = await Promise.all(
-        photos.map(async (photo) => {
-          const fileName = `series-photo-${studentId}-${cuid()}.${photo.extname}`
-          await photo.moveToDisk(fileName)
-          return fileName
-        })
-      )
-
-      for (const photoPath of photoPaths) {
+      for (const link of photoLinks) {
         await SeriesPhoto.create(
-          { seriesPhotoAssessmentId: seriesPhoto.id, photoLink: photoPath },
+          { seriesPhotoAssessmentId: seriesPhoto.id, photoLink: link },
           { client: trx }
         )
       }
@@ -97,7 +84,7 @@ export default class SeriesPhotoAssessmentService {
   async updateAssessment(
     studentId: number,
     assessmentId: number,
-    { photos, description, feedback, learningGoals }: EditSeriesPhotoDto
+    { photoLinks, description, feedback, learningGoals }: EditSeriesPhotoDto
   ) {
     const seriesPhoto = await SeriesPhotoAssessment.query()
       .where('student_id', studentId)
@@ -110,39 +97,34 @@ export default class SeriesPhotoAssessmentService {
     const disk = drive.use()
 
     try {
-      seriesPhoto
-        .merge({
-          description: description ?? seriesPhoto.description,
-          feedback: feedback ?? seriesPhoto.feedback,
-        })
-        .useTransaction(trx)
-        .save()
+      seriesPhoto.merge({
+        description: description ?? seriesPhoto.description,
+        feedback: feedback ?? seriesPhoto.feedback,
+      })
 
       if (learningGoals && learningGoals.length) {
         await seriesPhoto.related('learningGoals').detach([], trx)
         await seriesPhoto.related('learningGoals').attach(learningGoals, trx)
+
+        seriesPhoto.updatedAt = DateTime.now()
       }
 
-      if (photos?.length !== 0) {
-        if (photos!.length < 3 || photos!.length > 5) {
-          throw new Error('unggah 3-5 foto')
-        }
-
+      if (photoLinks?.length !== 0) {
         const existingPhotos = seriesPhoto.seriesPhotos
-        for (const existingPhoto of existingPhotos) {
-          await disk.delete(existingPhoto.photoLink)
-          await existingPhoto.useTransaction(trx).delete()
+        const existingPhotoLinks = existingPhotos.map((photo) => photo.photoLink)
+
+        const linksToDelete = existingPhotoLinks.filter((link) => !photoLinks!.includes(link))
+        const linksToAdd = photoLinks!.filter((link) => !existingPhotoLinks.includes(link))
+
+        for (const link of linksToDelete) {
+          const photo = existingPhotos.find((p) => p.photoLink === link)
+          if (photo) {
+            await disk.delete(photo.photoLink)
+            await photo.useTransaction(trx).delete()
+          }
         }
 
-        const photoPaths = await Promise.all(
-          photos!.map(async (photo) => {
-            const fileName = `series-photo-${studentId}-${cuid()}.${photo.extname}`
-            await photo.moveToDisk(fileName)
-            return fileName
-          })
-        )
-
-        for (const photoPath of photoPaths) {
+        for (const photoPath of linksToAdd) {
           await SeriesPhoto.create(
             { seriesPhotoAssessmentId: seriesPhoto.id, photoLink: photoPath },
             { client: trx }
@@ -150,7 +132,9 @@ export default class SeriesPhotoAssessmentService {
         }
       }
 
+      await seriesPhoto.useTransaction(trx).save()
       await trx.commit()
+
       await seriesPhoto.load('learningGoals')
       await seriesPhoto.load('seriesPhotos')
       return seriesPhoto

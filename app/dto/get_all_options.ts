@@ -12,8 +12,8 @@ export interface GetAllAssessmentsOptions {
 export const defaultGetAllAssessmentsOptions = {
   page: 1,
   limit: 10,
-  startDate: DateTime.now().minus({ days: 7 }).toFormat('yyyy-LL-dd'),
-  endDate: DateTime.now().toFormat('yyyy-LL-dd'),
+  startDate: DateTime.now().setZone('Asia/Jakarta').minus({ days: 7 }).toFormat('yyyy-LL-dd'),
+  endDate: DateTime.now().setZone('Asia/Jakarta').toFormat('yyyy-LL-dd'),
   sortOrder: 'desc' as 'asc' | 'desc',
   usePagination: true,
 }
