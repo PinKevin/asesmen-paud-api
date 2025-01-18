@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  asesmen-paud:
+    image: emeriokevin/asesmen-paud
+    container_name: asesmen-paud
+    build:
+      context: .
+      target: build
+    ports:
+      - ${PORT}:${PORT}
+      - 3333:3333
+      - 9229:9229
+    env_file:
+      - .env
+    volumes:
+      - /home/node/app/node_modules
+    command: pnpm start
+    depends_on:
+      - asesmen-paud-postgresql
+
+  asesmen-paud-postgresql:
+    image: postgres:17
+    container_name: asesmen-paud-postgresql
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    expose:
+      - ${DB_PORT}
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+volumes:
+  data:

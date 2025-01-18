@@ -30,3 +30,5 @@ yarn-error.log
 
 /storage/*
 !/storage/note.txt
+
+/data
