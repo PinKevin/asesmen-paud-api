@@ -25,4 +25,5 @@ RUN pnpm i --prod --frozen-lockfile
 COPY --chown=node:node --from=build /home/node/app/build .
 
 COPY --chown=node:node .env ./
+RUN mkdir -p /home/node/app/storage && chown -R node:node /home/node/app/storage
 EXPOSE ${PORT}

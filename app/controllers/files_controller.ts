@@ -22,7 +22,7 @@ export default class FilesController {
         201
       )
     } catch (error) {
-      return this.responseService.errorResponse(response, `Unggah foto gagal`)
+      return this.responseService.errorResponse(response, `Unggah foto gagal. ${error}`)
     }
   }
 }
