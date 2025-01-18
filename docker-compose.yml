@@ -15,7 +15,23 @@ services:
       - .env
     volumes:
       - /home/node/app/node_modules
-    command: pnpm start
+    command: >
+      sh -c '
+        # Check if .env exists
+        if [ ! -f .env ]; then
+          echo "Error: .env file not found!"
+          exit 1
+        fi
+
+        # Check if APP_KEY exists in .env
+        if ! grep -q "APP_KEY=" .env; then
+          echo "Error: APP_KEY not set in .env!"
+          exit 1
+        fi
+
+        # Run using pnpm
+        exec pnpm start
+      '
     depends_on:
       - asesmen-paud-postgresql
 
