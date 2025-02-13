@@ -1,9 +1,9 @@
 version: '3.9'
 
 services:
-  asesmen-paud:
+  backend:
     image: ${DOCKER_IMAGE}
-    container_name: asesmen-paud
+    container_name: backend
     build:
       context: .
       target: build
@@ -14,8 +14,8 @@ services:
     env_file:
       - .env
     volumes:
-      - /home/node/app/node_modules
-      - storage_data:/home/node/app/storage
+      - node_modules:/home/node/app/node_modules
+      - storage:/home/node/app/storage
     command: >
       sh -c '
         # Check if .env exists
@@ -34,11 +34,11 @@ services:
         exec pnpm start
       '
     depends_on:
-      - asesmen-paud-postgresql
+      - postgresql
 
-  asesmen-paud-postgresql:
+  postgresql:
     image: postgres:17
-    container_name: asesmen-paud-postgresql
+    container_name: postgresql
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -49,8 +49,9 @@ services:
     expose:
       - ${DB_PORT}
     volumes:
-      - data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
 
 volumes:
-  data:
-  storage_data:
+  node_modules:
+  db_data:
+  storage:
