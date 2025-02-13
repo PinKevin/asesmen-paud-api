@@ -5,19 +5,28 @@ import { BaseSeeder } from '@adonisjs/lucid/seeders'
 
 export default class extends BaseSeeder {
   async run() {
+    // If you use GCS
+    // const disk = drive.use('gcs')
+    
+    // If you use the default disk
     // const disk = drive.use()
+    
     // await disk.deleteAll('/')
     // await disk.put('/note.txt', 'Just some note to preserve storage folder')
-    // const sourcePath = path.resolve('tmp', 'pp-profile-test.jpeg')
-    // const destinationPath = 'pp-profile-test.jpeg'
-    // try {
-    //   // Read file content from tmp directory
-    //   const fileBuffer = await readFile(sourcePath)
-    //   // Upload the file content to the disk
-    //   await disk.put(destinationPath, fileBuffer)
-    //   console.log('File uploaded successfully')
-    // } catch (error) {
-    //   console.error('Error uploading file:', error)
-    // }
+
+//     const sourcePath = path.resolve('tmp', 'pp-profile-test.jpeg')
+//     const destinationPath = 'pp-profile-test.jpeg'
+
+//     try {
+//       // Read file content from tmp directory
+//       const fileBuffer = await readFile(sourcePath)
+
+//       // Upload the file content to the disk
+//       await disk.put(destinationPath, fileBuffer)
+//       console.log('File uploaded successfully')
+//     } catch (error) {
+//       console.error('Error uploading file:', error)
+//     }
+
   }
 }

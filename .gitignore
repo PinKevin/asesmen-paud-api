@@ -31,4 +31,5 @@ yarn-error.log
 /storage/*
 !/storage/note.txt
 
-/data
+# Cloud Storage related
+gcs_key.json

@@ -25,4 +25,21 @@ export default class FilesController {
       return this.responseService.errorResponse(response, `Unggah foto gagal`)
     }
   }
+
+  async getPhoto({ request, response }: HttpContext) {
+    try {
+      const fileName = request.param('fileName')
+      const { metadata, stream } = await this.fileService.getFromDisk(fileName)
+
+      if (!stream) {
+        return this.responseService.failResponse(response, 'Foto tidak ditemukan', 404)
+      }
+
+      response.header('Content-Type', metadata.contentType!)
+      return response.stream(stream)
+    } catch (error) {
+      console.log(error)
+      return this.responseService.errorResponse(response, `Ambil foto gagal. ${error}`)
+    }
+  }
 }
