@@ -64,6 +64,7 @@ router
     router.get('/learning-goal-by-id/:id', [LearningGoalsController, 'getLearningGoalById'])
 
     router.post('/upload-photo', [FilesController, 'uploadPhoto'])
+    router.get('/get-photo/:fileName', [FilesController, 'getPhoto'])
 
     router.get('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'index'])
     router.post('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'store'])

@@ -5,9 +5,9 @@ import path from 'node:path'
 
 export default class extends BaseSeeder {
   async run() {
-    const disk = drive.use()
-    await disk.deleteAll('/')
-    await disk.put('/note.txt', 'Just some note to preserve storage folder')
+    const disk = drive.use('gcs')
+    // await disk.deleteAll('/')
+    // await disk.put('/note.txt', 'Just some note to preserve storage folder')
 
     const sourcePath = path.resolve('tmp', 'pp-profile-test.jpeg')
     const destinationPath = 'pp-profile-test.jpeg'
