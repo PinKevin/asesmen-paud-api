@@ -51,26 +51,26 @@ export default class ReportPrintHistoryService {
     class: string
     photoProfileLink: string
   }) {
-    const imageData = await drive.use().getBytes(student.photoProfileLink)
+    // const imageData = await drive.use().getBytes(student.photoProfileLink)
 
     const imageAndNameRow = new TableRow({
       children: [
-        new TableCell({
-          rowSpan: 5,
-          verticalAlign: AlignmentType.CENTER,
-          children: [
-            new Paragraph({
-              alignment: AlignmentType.CENTER,
-              children: [
-                new ImageRun({
-                  data: imageData,
-                  transformation: { width: 113, height: 151 },
-                  type: 'jpg',
-                }),
-              ],
-            }),
-          ],
-        }),
+        // new TableCell({
+        //   rowSpan: 5,
+        //   verticalAlign: AlignmentType.CENTER,
+        //   children: [
+        //     new Paragraph({
+        //       alignment: AlignmentType.CENTER,
+        //       children: [
+        //         new ImageRun({
+        //           data: imageData,
+        //           transformation: { width: 113, height: 151 },
+        //           type: 'jpg',
+        //         }),
+        //       ],
+        //     }),
+        //   ],
+        // }),
         new TableCell({
           verticalAlign: AlignmentType.CENTER,
           children: [
@@ -193,6 +193,7 @@ export default class ReportPrintHistoryService {
         size: 100,
         type: WidthType.PERCENTAGE,
       },
+      alignment: 'center',
       borders: {
         top: { style: BorderStyle.NONE },
         bottom: { style: BorderStyle.NONE },

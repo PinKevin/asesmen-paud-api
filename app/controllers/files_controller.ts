@@ -22,8 +22,7 @@ export default class FilesController {
         201
       )
     } catch (error) {
-      console.log(error)
-      return this.responseService.errorResponse(response, `Unggah foto gagal. ${error}`)
+      return this.responseService.errorResponse(response, `Unggah foto gagal`)
     }
   }
 

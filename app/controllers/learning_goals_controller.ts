@@ -60,7 +60,7 @@ export default class LearningGoalsController {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, 'Tidak ditemukan', 404)
       }
-      return this.responseService.failResponse(response, `Gagal mengambil. Error: ${error}`, 500)
+      return this.responseService.errorResponse(response, `Gagal mengambil data kompetensi`)
     }
   }
 
@@ -78,7 +78,7 @@ export default class LearningGoalsController {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, 'Tidak ditemukan', 404)
       }
-      return this.responseService.failResponse(response, `Gagal mengambil. Error: ${error}`, 500)
+      return this.responseService.failResponse(response, `Gagal mengambil data tujuan pembelajaran`)
     }
   }
 
@@ -96,7 +96,10 @@ export default class LearningGoalsController {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, 'Tidak ditemukan', 404)
       }
-      return this.responseService.failResponse(response, `Gagal mengambil. Error: ${error}`, 500)
+      return this.responseService.failResponse(
+        response,
+        `Gagal mengambil data sub-lingkup pembelajaran`
+      )
     }
   }
 
@@ -114,7 +117,7 @@ export default class LearningGoalsController {
       if (error instanceof errors.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, 'Tidak ditemukan', 404)
       }
-      return this.responseService.failResponse(response, `Gagal mengambil. Error: ${error}`, 500)
+      return this.responseService.failResponse(response, `Gagal mengambil data tujuan pembelajaran`)
     }
   }
 }

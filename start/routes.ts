@@ -106,21 +106,15 @@ router
     ])
 
     router.get('/students/:id/reports', [ReportPrintHistoriesController, 'indexReport'])
-    router.get('/students/:id/reports/:reportId', [ReportPrintHistoriesController, 'showReport'])
     router.post('/students/:id/reports/create-report', [
       ReportPrintHistoriesController,
       'createAndDownloadReport',
     ])
+    router.get('/students/:id/reports/:reportId', [ReportPrintHistoriesController, 'showReport'])
     router.get('/students/:id/reports/:reportId/download-report', [
       ReportPrintHistoriesController,
       'downloadExistingReport',
     ])
-
-    router.get('/test-guard', async () => {
-      return {
-        test: 'In tes penggunaan token',
-      }
-    })
   })
   .use(
     middleware.auth({

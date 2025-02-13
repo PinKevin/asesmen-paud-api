@@ -60,10 +60,14 @@ export default class ReportPrintHistoriesController {
       response.header('Content-Disposition', `attachment; filename=${fileName}`)
       return response.send(buffer)
     } catch (error) {
+      console.log(error)
       if (error.cause === 'already-exists') {
         return this.responseService.failResponse(response, error.message)
       }
-      return this.responseService.errorResponse(response, 'Error saat membuat laporan')
+      return this.responseService.errorResponse(
+        response,
+        `Gagal membuat laporan. Error: ${error.message}`
+      )
     }
   }
 
@@ -94,6 +98,7 @@ export default class ReportPrintHistoriesController {
       } else if (error.cause === 'File not found') {
         return this.responseService.failResponse(response, 'File tidak ditemukan', 404)
       }
+      return this.responseService.errorResponse(response, 'Gagal mengunduh laporan')
     }
   }
 
@@ -116,7 +121,7 @@ export default class ReportPrintHistoriesController {
       })
       return this.responseService.successResponse(response, 'Laporan berhasil diambil', data)
     } catch (error) {
-      return this.responseService.errorResponse(response)
+      return this.responseService.errorResponse(response, 'Gagal mengambil laporan')
     }
   }
 
@@ -131,7 +136,7 @@ export default class ReportPrintHistoriesController {
       if (error instanceof lucidError.E_ROW_NOT_FOUND) {
         return this.responseService.failResponse(response, 'Data tidak ditemukan', 404)
       }
-      return this.responseService.errorResponse(response)
+      return this.responseService.errorResponse(response, 'Gagal mengambil laporan yang diminta')
     }
   }
 }
