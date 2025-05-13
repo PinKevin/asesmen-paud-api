@@ -38,8 +38,6 @@ router
     router.post('/sign-out', [AuthController, 'logout'])
     router.get('/profile', [AuthController, 'getProfile'])
 
-    router.get('/students', [StudentController, 'index'])
-    router.get('/students/:id', [StudentController, 'getStudentInfo'])
     router.get('/classes', [TeacherController, 'getTeacherClasses'])
 
     router.get('/competencies', [LearningGoalsController, 'getAllCompetencies'])
@@ -55,6 +53,7 @@ router
       LearningGoalsController,
       'getLearningGoalsBySubLearningScopeId',
     ])
+
     router.get('/competency-by-id/:id', [LearningGoalsController, 'getCompetencyById'])
     router.get('/learning-scope-by-id/:id', [LearningGoalsController, 'getLearningScopeById'])
     router.get('/sub-learning-scope-by-id/:id', [
@@ -66,55 +65,70 @@ router
     router.post('/upload-photo', [FilesController, 'uploadPhoto'])
     router.get('/get-photo/:fileName', [FilesController, 'getPhoto'])
 
-    router.get('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'index'])
-    router.post('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'store'])
-    router.get('/students/:id/anecdotals/:anecdotalId', [AnecdotalAssessmentsController, 'show'])
-    router.put('/students/:id/anecdotals/:anecdotalId', [AnecdotalAssessmentsController, 'update'])
-    router.delete('/students/:id/anecdotals/:anecdotalId', [
-      AnecdotalAssessmentsController,
-      'destroy',
-    ])
+    router
+      .group(() => {
+        router.get('/', [StudentController, 'index'])
+        router.post('/', [StudentController, 'store'])
+        router.get('/:id', [StudentController, 'getStudentInfo'])
+        router.put('/:id', [StudentController, 'update'])
+        router.delete('/:id', [StudentController, 'destroy'])
 
-    router.get('/students/:id/artworks', [ArtworkAssessmentsController, 'index'])
-    router.post('/students/:id/artworks', [ArtworkAssessmentsController, 'store'])
-    router.get('/students/:id/artworks/:artworkId', [ArtworkAssessmentsController, 'show'])
-    router.put('/students/:id/artworks/:artworkId', [ArtworkAssessmentsController, 'update'])
-    router.delete('/students/:id/artworks/:artworkId', [ArtworkAssessmentsController, 'destroy'])
+        router
+          .group(() => {
+            router.get('/', [AnecdotalAssessmentsController, 'index'])
+            router.post('/', [AnecdotalAssessmentsController, 'store'])
+            router.get('/:anecdotalId', [AnecdotalAssessmentsController, 'show'])
+            router.put('/:anecdotalId', [AnecdotalAssessmentsController, 'update'])
+            router.delete('/:anecdotalId', [AnecdotalAssessmentsController, 'destroy'])
+          })
+          .prefix('/:id/anecdotals')
 
-    router.get('/students/:id/checklists', [ChecklistAssessmentsController, 'index'])
-    router.post('/students/:id/checklists', [ChecklistAssessmentsController, 'store'])
-    router.get('/students/:id/checklists/:checklistId', [ChecklistAssessmentsController, 'show'])
-    router.put('/students/:id/checklists/:checklistId', [ChecklistAssessmentsController, 'update'])
-    router.delete('/students/:id/checklists/:checklistId', [
-      ChecklistAssessmentsController,
-      'destroy',
-    ])
+        router
+          .group(() => {
+            router.get('/', [ArtworkAssessmentsController, 'index'])
+            router.post('/', [ArtworkAssessmentsController, 'store'])
+            router.get('/:artworkId', [ArtworkAssessmentsController, 'show'])
+            router.put('/:artworkId', [ArtworkAssessmentsController, 'update'])
+            router.delete('/:artworkId', [ArtworkAssessmentsController, 'destroy'])
+          })
+          .prefix('/:id/artworks')
 
-    router.get('/students/:id/series-photos', [SeriesPhotoAssessmentsController, 'index'])
-    router.post('/students/:id/series-photos', [SeriesPhotoAssessmentsController, 'store'])
-    router.get('/students/:id/series-photos/:seriesPhotoId', [
-      SeriesPhotoAssessmentsController,
-      'show',
-    ])
-    router.put('/students/:id/series-photos/:seriesPhotoId', [
-      SeriesPhotoAssessmentsController,
-      'update',
-    ])
-    router.delete('/students/:id/series-photos/:seriesPhotoId', [
-      SeriesPhotoAssessmentsController,
-      'destroy',
-    ])
+        router
+          .group(() => {
+            router.get('/', [ChecklistAssessmentsController, 'index'])
+            router.post('/', [ChecklistAssessmentsController, 'store'])
+            router.get('/:checklistId', [ChecklistAssessmentsController, 'show'])
+            router.put('/:checklistId', [ChecklistAssessmentsController, 'update'])
+            router.delete('/:checklistId', [ChecklistAssessmentsController, 'destroy'])
+          })
+          .prefix('/:id/checklists')
 
-    router.get('/students/:id/reports', [ReportPrintHistoriesController, 'indexReport'])
-    router.post('/students/:id/reports/create-report', [
-      ReportPrintHistoriesController,
-      'createAndDownloadReport',
-    ])
-    router.get('/students/:id/reports/:reportId', [ReportPrintHistoriesController, 'showReport'])
-    router.get('/students/:id/reports/:reportId/download-report', [
-      ReportPrintHistoriesController,
-      'downloadExistingReport',
-    ])
+        router
+          .group(() => {
+            router.get('/', [SeriesPhotoAssessmentsController, 'index'])
+            router.post('/', [SeriesPhotoAssessmentsController, 'store'])
+            router.get('/:seriesPhotoId', [SeriesPhotoAssessmentsController, 'show'])
+            router.put('/:seriesPhotoId', [SeriesPhotoAssessmentsController, 'update'])
+            router.delete('/:seriesPhotoId', [SeriesPhotoAssessmentsController, 'destroy'])
+          })
+          .prefix('/:id/series-photos')
+
+        router
+          .group(() => {
+            router.get('/', [ReportPrintHistoriesController, 'indexReport'])
+            router.post('/create-report', [
+              ReportPrintHistoriesController,
+              'createAndDownloadReport',
+            ])
+            router.get('/:reportId', [ReportPrintHistoriesController, 'showReport'])
+            router.get('/:reportId/download-report', [
+              ReportPrintHistoriesController,
+              'downloadExistingReport',
+            ])
+          })
+          .prefix('/:id/reports')
+      })
+      .prefix('/students')
   })
   .use(
     middleware.auth({
