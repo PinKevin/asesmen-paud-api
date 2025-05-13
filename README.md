@@ -60,3 +60,33 @@ Available options for the `--auth-guard` flag.
 - session
 - basic_auth
 - access_tokens
+
+# Development Guide (By Me)
+
+1. Clone this repo
+2. Run `pnpm i`
+3. Copy `.env.example` to `.env`
+4. Set DB and AdonisJS Drive related environment
+5. Generate key using `node ace generate:key`
+6. Run `pnpm dev`
+
+# Production Guide (By Me)
+
+1. Run `pnpm build`
+2. Go to `build` directory or using `cd build`
+3. Run `pnpm i --prod`
+4. Copy your `.env` file to `build` directory, set **NODE_ENV** to **production**
+5. Run `pnpm start`
+
+# Using Docker (For Development)
+
+1. Set the `DB_HOST` to **asesmen-paud-postgresql**
+2. Start `docker build -t <image-name>:<tag> .`
+3. Run `docker-compose up -d`
+4. In `asesmen-paud-postgresql` EXEC container menu or via `docker exec -it <hash-number> bash`, do following command
+   - `psql -U postgres`, then the rest is on the psql terminal
+   - `ALTER ROLE postgres WITH PASSWORD <password>`. Then set this password in `.env` file
+   - `exit`
+   - `exit` again if you're using `docker exec`
+5. In `asesmen-paud` EXEC container menu or via `docker exec -it <hash-number> bash`, do following command
+   - `node ace migration:fresh --seed`

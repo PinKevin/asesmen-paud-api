@@ -8,9 +8,7 @@ export default class extends BaseSeeder {
     const classes = await Class.all()
 
     for (let i = 0; i < 20; i++) {
-      const student = await StudentFactory.merge({
-        photoProfileLink: 'pp-profile-test.jpeg',
-      }).create()
+      const student = await StudentFactory.create()
       const randomClasses = classes
         .sort(() => 0.5 - Math.random())
         .slice(0, Math.floor(Math.random() * classes.length) + 1)

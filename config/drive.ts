@@ -1,10 +1,9 @@
-// import env from '#start/env'
+import env from '#start/env'
 import app from '@adonisjs/core/services/app'
 import { defineConfig, services } from '@adonisjs/drive'
 
 const driveConfig = defineConfig({
-  default: 'fs',
-  // default: env.get('DRIVE_DISK'),
+  default: env.get('DRIVE_DISK'),
 
   /**
    * The services object can be used to configure multiple file system
@@ -17,11 +16,12 @@ const driveConfig = defineConfig({
       routeBasePath: '/uploads',
       visibility: 'public',
     }),
-    // gcs: services.gcs({
-    //   credentials: env.get('GCS_KEY'),
-    //   bucket: env.get('GCS_BUCKET'),
-    //   visibility: 'public',
-    // }),
+    gcs: services.gcs({
+      // credentials: JSON.parse(env.get('GCS_KEY')),
+      bucket: env.get('GCS_BUCKET'),
+      visibility: 'public',
+      keyFilename: env.get('GCS_KEY'),
+    }),
   },
 })
 

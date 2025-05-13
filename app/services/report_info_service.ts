@@ -1,19 +1,19 @@
 import { GetAllAssessmentsOptions } from '#dto/get_all_options'
 import ReportPrintHistory from '#models/report_print_history'
-import SchoolYear from '#models/school_year'
 import { DateTime } from 'luxon'
 
 export default class ReportInfoService {
   async getSemesterInfo() {
-    const currentYear = DateTime.now().year
     const currentMonth = DateTime.now().month
     const isEvenSemester = currentMonth >= 1 && currentMonth <= 6
+    const currentYear = DateTime.now().year
+    const semesterStartYear = isEvenSemester ? currentYear - 1 : currentYear
 
-    const semester = await SchoolYear.query()
-      .where('isEvenSemester', isEvenSemester)
-      .andWhere('startYear', currentYear)
-      .andWhere('endYear', currentYear + 1)
-      .firstOrFail()
+    const semester = {
+      isEvenSemester,
+      startYear: semesterStartYear,
+      endYear: semesterStartYear + 1,
+    }
 
     return semester
   }

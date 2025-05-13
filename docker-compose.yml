@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  backend:
+    image: ${DOCKER_IMAGE}
+    container_name: backend
+    build:
+      context: .
+      target: build
+    ports:
+      - ${PORT}:${PORT}
+      - 3333:3333
+      - 9229:9229
+    env_file:
+      - .env
+    volumes:
+      - node_modules:/home/node/app/node_modules
+      - storage:/home/node/app/storage
+    command: >
+      sh -c '
+        # Check if .env exists
+        if [ ! -f .env ]; then
+          echo "Error: .env file not found!"
+          exit 1
+        fi
+
+        # Check if APP_KEY exists in .env
+        if ! grep -q "APP_KEY=" .env; then
+          echo "Error: APP_KEY not set in .env!"
+          exit 1
+        fi
+
+        # Run using pnpm
+        exec pnpm start
+      '
+    depends_on:
+      - postgresql
+
+  postgresql:
+    image: postgres:17
+    container_name: postgresql
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    expose:
+      - ${DB_PORT}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  node_modules:
+  db_data:
+  storage:

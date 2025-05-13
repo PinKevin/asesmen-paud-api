@@ -64,6 +64,7 @@ router
     router.get('/learning-goal-by-id/:id', [LearningGoalsController, 'getLearningGoalById'])
 
     router.post('/upload-photo', [FilesController, 'uploadPhoto'])
+    router.get('/get-photo/:fileName', [FilesController, 'getPhoto'])
 
     router.get('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'index'])
     router.post('/students/:id/anecdotals', [AnecdotalAssessmentsController, 'store'])
@@ -105,21 +106,15 @@ router
     ])
 
     router.get('/students/:id/reports', [ReportPrintHistoriesController, 'indexReport'])
-    router.get('/students/:id/reports/:reportId', [ReportPrintHistoriesController, 'showReport'])
     router.post('/students/:id/reports/create-report', [
       ReportPrintHistoriesController,
       'createAndDownloadReport',
     ])
+    router.get('/students/:id/reports/:reportId', [ReportPrintHistoriesController, 'showReport'])
     router.get('/students/:id/reports/:reportId/download-report', [
       ReportPrintHistoriesController,
       'downloadExistingReport',
     ])
-
-    router.get('/test-guard', async () => {
-      return {
-        test: 'In tes penggunaan token',
-      }
-    })
   })
   .use(
     middleware.auth({
