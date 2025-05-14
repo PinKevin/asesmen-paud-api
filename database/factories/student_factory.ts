@@ -17,6 +17,7 @@ export const StudentFactory = factory
       acceptanceDate: DateTime.fromJSDate(
         faker.date.between({ from: '2022-01-01', to: '2024-07-31' })
       ),
+      photoProfileLink: 'seeded',
     }
   })
   .build()

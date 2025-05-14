@@ -133,7 +133,7 @@ export default class StudentService {
       religion: student.religion,
       acceptanceDate: student.acceptanceDate,
       photoProfileLink: student.photoProfileLink,
-      class: latestClassName,
+      className: latestClassName,
       classId: latestClassId,
     }
   }
