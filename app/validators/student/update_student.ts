@@ -1,14 +1,9 @@
 import { Gender, Religion } from '#enum/user_enum'
-import { uniqueRule } from '#validators/unique'
 import vine, { SimpleMessagesProvider } from '@vinejs/vine'
 
 export const updateStudentValidation = vine.compile(
   vine.object({
     name: vine.string().alpha().optional(),
-    nisn: vine
-      .string()
-      .use(uniqueRule({ table: 'students', column: 'nisn' }))
-      .optional(),
     placeOfBirth: vine.string().optional(),
     dateOfBirth: vine.string().optional(),
     gender: vine.enum(Gender).optional(),

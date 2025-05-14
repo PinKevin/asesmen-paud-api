@@ -125,6 +125,7 @@ export default class StudentService {
     const latestClassId = student.classes[0].id
 
     return {
+      id: student.id,
       name: student.name,
       nisn: student.nisn,
       placeOfBirth: student.placeOfBirth,
