@@ -39,10 +39,14 @@ export default class ReportPrintHistoriesController {
       const disk = drive.use()
       const user = await this.authService.getUserFromAuth(auth)
 
-      const { student, buffer, formattedStartDate, formattedEndDate } =
-        await this.reportService.printReport(studentId, user, startDate, endDate)
+      const { student, buffer, formattedStartDate } = await this.reportService.printReport(
+        studentId,
+        user,
+        startDate,
+        endDate
+      )
 
-      const fileName = `Laporan Pembelajaran ${student.name} tanggal ${formattedStartDate}-${formattedEndDate}.docx`
+      const fileName = `Laporan_${student.name}_${formattedStartDate}.docx`
       const filePath = `reports/${fileName}`
       await disk.put(filePath, buffer)
 

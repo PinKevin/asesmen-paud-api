@@ -48,7 +48,7 @@ export default class ReportPrintHistoryService {
     nisn: string
     gender: string
     religion: string
-    class: string
+    className: string
     photoProfileLink: string
   }) {
     // const imageData = await drive.use().getBytes(student.photoProfileLink)
@@ -127,7 +127,7 @@ export default class ReportPrintHistoryService {
                 },
               ],
               children: [
-                new TextRun({ text: `Kelas\t: ${student.class}`, bold: true, size: '12pt' }),
+                new TextRun({ text: `Kelas\t: ${student.className}`, bold: true, size: '12pt' }),
               ],
             }),
           ],
@@ -915,7 +915,7 @@ export default class ReportPrintHistoryService {
 
     const formattedStartDate = DateTime.fromFormat(startDate, 'yyyy-LL-dd')
       .setLocale('id-ID')
-      .toFormat('d LLLL yyyy')
+      .toFormat('LLLL_yyyy')
     const formattedEndDate = DateTime.fromFormat(endDate, 'yyyy-LL-dd')
       .setLocale('id-ID')
       .toFormat('d LLLL yyyy')
@@ -1057,7 +1057,7 @@ export default class ReportPrintHistoryService {
             new Paragraph({
               children: [new TextRun('\n')],
             }),
-            this.createSignatureTable(formattedEndDate, teacher!.name, student.class),
+            this.createSignatureTable(formattedEndDate, teacher!.name, student.className),
           ],
         },
       ],
