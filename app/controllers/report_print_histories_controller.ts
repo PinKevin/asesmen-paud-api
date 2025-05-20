@@ -143,4 +143,20 @@ export default class ReportPrintHistoriesController {
       return this.responseService.errorResponse(response, 'Gagal mengambil laporan yang diminta')
     }
   }
+
+  async destroy({ request, response }: HttpContext) {
+    const studentId = request.param('id')
+    const reportId = request.param('reportId')
+
+    try {
+      await this.reportInfoService.deleteReportHistory(studentId, reportId)
+      return this.responseService.successResponse(response, 'Laporan berhasil dihapus')
+    } catch (error) {
+      if (error instanceof lucidError.E_ROW_NOT_FOUND) {
+        return this.responseService.failResponse(response, 'Data tidak ditemukan', 404)
+      }
+      return this.responseService.errorResponse(response, 'Gagal mengambil laporan yang diminta')
+      // return this.responseService.errorResponse(response, error.message)
+    }
+  }
 }

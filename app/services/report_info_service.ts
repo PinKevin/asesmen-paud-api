@@ -1,5 +1,6 @@
 import { GetAllAssessmentsOptions } from '#dto/get_all_options'
 import ReportPrintHistory from '#models/report_print_history'
+import drive from '@adonisjs/drive/services/main'
 import { DateTime } from 'luxon'
 
 export default class ReportInfoService {
@@ -48,5 +49,17 @@ export default class ReportInfoService {
       .andWhere('reportId', reportId)
       .firstOrFail()
     return report
+  }
+
+  async deleteReportHistory(studentId: number, reportId: number) {
+    const report = await ReportPrintHistory.query()
+      .where('id', reportId)
+      .andWhere('studentId', studentId)
+      .firstOrFail()
+
+    const disk = await drive.use()
+    await disk.delete(report.printFileLink)
+
+    await report.delete()
   }
 }

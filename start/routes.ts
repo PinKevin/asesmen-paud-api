@@ -125,6 +125,7 @@ router
               ReportPrintHistoriesController,
               'downloadExistingReport',
             ])
+            router.delete('/:reportId', [ReportPrintHistoriesController, 'destroy'])
           })
           .prefix('/:id/reports')
       })
