@@ -915,10 +915,13 @@ export default class ReportPrintHistoryService {
 
     const formattedStartDate = DateTime.fromFormat(startDate, 'yyyy-LL-dd')
       .setLocale('id-ID')
-      .toFormat('LLLL_yyyy')
+      .toFormat('d LLLL yyyy')
     const formattedEndDate = DateTime.fromFormat(endDate, 'yyyy-LL-dd')
       .setLocale('id-ID')
       .toFormat('d LLLL yyyy')
+    const titleDate = DateTime.fromFormat(startDate, 'yyyy-LL-dd')
+      .setLocale('id-Id')
+      .toFormat('LLL_yyyy')
 
     const doc = new Document({
       sections: [
@@ -1064,6 +1067,6 @@ export default class ReportPrintHistoryService {
     })
 
     const buffer = await Packer.toBuffer(doc)
-    return { student, buffer, formattedStartDate, formattedEndDate }
+    return { student, buffer, formattedEndDate, titleDate }
   }
 }
